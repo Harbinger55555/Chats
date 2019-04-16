@@ -1,6 +1,5 @@
 CC = gcc
 OPTS = -g -Wall -Werror -std=c99 -D_DEFAULT_SOURCE
-CLIENT_OBJS := client.o connection.o message.o
 INCS = $(wildcard *.h)
 
 all: server client

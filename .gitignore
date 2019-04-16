@@ -5,4 +5,5 @@ cmake-build-debug
 CMakeLists.txt
 *.cbp
 *.o
-main
+client
+server

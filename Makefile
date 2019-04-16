@@ -1,5 +1,5 @@
 CC = gcc
-OPTS = -g -Wall -Werror -std=c99
+OPTS = -g -Wall -Werror -std=c99 -D_DEFAULT_SOURCE
 SRCS = $(wildcard *.c)
 INCS = $(wildcard *.h)
 OBJS = $(SRCS:.cpp=.o)

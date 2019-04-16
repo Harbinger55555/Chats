@@ -15,4 +15,4 @@ client: client.o connection.o message.o
 
 .PHONY: clean
 clean:
-	rm main *.o
+	rm server client *.o

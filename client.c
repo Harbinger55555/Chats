@@ -1,11 +1,12 @@
 #include <sys/socket.h>             /* socket definitions   */
 #include <sys/types.h>              /* socket types         */
 #include <arpa/inet.h>              /* inet (3) function    */
-#include <uninstd.h>                /* misc. UNIX functions */
+#include <unistd.h>                /* misc. UNIX functions */
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 
 /* Global constants */
 #define MAX_LINE        (1000)
@@ -14,6 +15,9 @@
 
 // TODO: will make a helper function to parse the command line
 /* Function declaration */
+ssize_t read_line(int fd, void *vptr, size_t maxlen);
+ssize_t write_line(int fc, const void *vptr, size_t maxlen);
+
 // int ParseCmdLine(int argc, char *argv[], char **serv_addr, char **server_port);
 
 int main(int argc, char *argv[]) {
@@ -22,9 +26,9 @@ int main(int argc, char *argv[]) {
     short       port;                       /* port number                  */
     struct      sockaddr_in servaddr;       /* socket address structure     */
     char        buffer[MAX_LINE];           /* character buffer             */
-    char        *serv_addr;                 /* Holds remote IP address      */
-    char        *server_port;               /* Holds remote port            */
-    char        *endptr;                    /* for strtol()                 */
+    // char        *serv_addr;                 /* Holds remote IP address      */
+    // char        *server_port;               /* Holds remote port            */
+    // char        *endptr;                    /* for strtol()                 */
 
 
     // TODO:
@@ -33,11 +37,13 @@ int main(int argc, char *argv[]) {
 
     /* Set the remote port */
     port = DEFAULT_PORT;
-    // port = strtol(server_port, &endptr, 0);
+    /*
+    port = strtol(server_port, &endptr, 0);
     if (*endptr) {
         printf("ECHOCLIENT: Invalid port supplied.\n");
-        exit(EXIT_FAILURE)
+        exit(EXIT_FAILURE);
     }
+    */
 
     /* Create the listening socket */
     if ((conn_s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -52,7 +58,7 @@ int main(int argc, char *argv[]) {
     servaddr.sin_port       = htons(port);
 
     /* Set the remote IP address */
-    if (inet_atom(DEFAULT_IP_ADDR, &servaddr.sin_addr) <= 0) {
+    if (inet_aton(DEFAULT_IP_ADDR, &servaddr.sin_addr) <= 0) {
     // if (inet_atom(serv_addr, &servaddr.sin_addr) <= 0) {
         printf("ECHOCLIENT: Invalid remote IP address.\n");
         exit(EXIT_FAILURE);
@@ -85,9 +91,9 @@ ssize_t write_line(int sockfd, const void *message, size_t msg_length) {
     const char *    buffer;
 
     buffer = message;
-    rem_msg_length = msg_length;
+    rem_msg_len = msg_length;
     while (rem_msg_len > 0) {
-        if ((writ_msg_len = write(sockfd, buffer, rem_msg_length)) <= 0) {
+        if ((writ_msg_len = write(sockfd, buffer, rem_msg_len)) <= 0) {
             if (errno == EINTR) {
                 writ_msg_len = 0;
             }
@@ -95,7 +101,7 @@ ssize_t write_line(int sockfd, const void *message, size_t msg_length) {
                 return -1;
             }
         }
-        rem_msg_length -= writ_msg_len;
+        rem_msg_len -= writ_msg_len;
         buffer += writ_msg_len;
     }
     return msg_length;
@@ -110,7 +116,7 @@ ssize_t read_line(int sockfd, void *message, size_t maxlen) {
     for (n = 1; n < maxlen; n++) {
         // read a char from sockfd (file descriptior) into c
         if ((bytes_read = read(sockfd, &c, 1)) == 1) {
-            *bufferz++ = c;
+            *buffer++ = c;
             if (c == '\n') {
                 break;
             }
@@ -124,8 +130,8 @@ ssize_t read_line(int sockfd, void *message, size_t maxlen) {
             }
         }
         else {
-            if (errno = EINTR) {
-                continue
+            if (errno == EINTR) {
+                continue;
             }
             return -1;
         }

@@ -3,7 +3,7 @@
 //
 
 #include <stdio.h>
-#include "server-conn.h"
+#include "connection.h"
 
 // Global constants
 //#define MAX_SIZE 1000

@@ -1,12 +1,14 @@
 CC = gcc
 OPTS = -g -Wall -Werror -std=c99 -D_DEFAULT_SOURCE
-SRCS = $(wildcard *.c)
+CLIENT_OBJS := client.o connection.o message.o
 INCS = $(wildcard *.h)
-OBJS = $(SRCS:.cpp=.o)
 
-all: main
+all: server client
 
-main: ${OBJS}
+server: server.o connection.o message.o
+	$(CC) $(OPTS) $^ -o $@
+
+client: client.o connection.o message.o
 	$(CC) $(OPTS) $^ -o $@
 
 %.o: %.c ${INCS}

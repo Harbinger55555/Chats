@@ -27,11 +27,13 @@ int main(int argc, char *argv[]) {
     char        *endptr;                    /* for strtol()                 */
 
 
+    // TODO:
     /* Get command line arguments */
-    parse_cmd_line(argc, argv, &serv_addr, &server_port);
+    // parse_cmd_line(argc, argv, &serv_addr, &server_port);
 
     /* Set the remote port */
-    port = strtol(server_port, &endptr, 0);
+    port = DEFAULT_PORT;
+    // port = strtol(server_port, &endptr, 0);
     if (*endptr) {
         printf("ECHOCLIENT: Invalid port supplied.\n");
         exit(EXIT_FAILURE)
@@ -50,7 +52,8 @@ int main(int argc, char *argv[]) {
     servaddr.sin_port       = htons(port);
 
     /* Set the remote IP address */
-    if (inet_atom(serv_addr, &servaddr.sin_addr) <= 0) {
+    if (inet_atom(DEFAULT_IP_ADDR, &servaddr.sin_addr) <= 0) {
+    // if (inet_atom(serv_addr, &servaddr.sin_addr) <= 0) {
         printf("ECHOCLIENT: Invalid remote IP address.\n");
         exit(EXIT_FAILURE);
     }
@@ -65,7 +68,6 @@ int main(int argc, char *argv[]) {
     printf("Enter message to echo: ");
     fgets(buffer, MAX_LINE, stdin);
 
-    // TODO: need to import module that has these two functions
     /* Send string to echo server, and retrieve response */
     write_line(conn_s, buffer, strlen(buffer));
     read_line(conn_s, buffer, MAX_LINE-1);

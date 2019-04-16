@@ -8,16 +8,14 @@
 #include <stdio.h>
 #include <errno.h>
 
+#include "message.h"
+
 /* Global constants */
 #define MAX_LINE        (1000)
 #define DEFAULT_PORT    (2002)
 #define DEFAULT_IP_ADDR ("127.0.0.1")
 
 // TODO: will make a helper function to parse the command line
-/* Function declaration */
-ssize_t read_line(int fd, void *vptr, size_t maxlen);
-ssize_t write_line(int fc, const void *vptr, size_t maxlen);
-
 // int ParseCmdLine(int argc, char *argv[], char **serv_addr, char **server_port);
 
 int main(int argc, char *argv[]) {
@@ -75,8 +73,8 @@ int main(int argc, char *argv[]) {
     fgets(buffer, MAX_LINE, stdin);
 
     /* Send string to echo server, and retrieve response */
-    write_line(conn_s, buffer, strlen(buffer));
-    read_line(conn_s, buffer, MAX_LINE-1);
+    write_message(conn_s, buffer, strlen(buffer));
+    read_message(conn_s, buffer, MAX_LINE-1);
 
     /* Output echoed string */
     printf("Echo response: %s\n", buffer);
@@ -84,58 +82,3 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
-/* Write a line to a socket */
-ssize_t write_line(int sockfd, const void *message, size_t msg_length) {
-    size_t          rem_msg_len;
-    ssize_t         writ_msg_len;
-    const char *    buffer;
-
-    buffer = message;
-    rem_msg_len = msg_length;
-    while (rem_msg_len > 0) {
-        if ((writ_msg_len = write(sockfd, buffer, rem_msg_len)) <= 0) {
-            if (errno == EINTR) {
-                writ_msg_len = 0;
-            }
-            else {
-                return -1;
-            }
-        }
-        rem_msg_len -= writ_msg_len;
-        buffer += writ_msg_len;
-    }
-    return msg_length;
-}
-
-/* Read a line from a socket */
-ssize_t read_line(int sockfd, void *message, size_t maxlen) {
-    ssize_t n, bytes_read;
-    char c, * buffer;
-    buffer = message;
-
-    for (n = 1; n < maxlen; n++) {
-        // read a char from sockfd (file descriptior) into c
-        if ((bytes_read = read(sockfd, &c, 1)) == 1) {
-            *buffer++ = c;
-            if (c == '\n') {
-                break;
-            }
-        }
-        else if (bytes_read == 0) {
-            if (n == 1) {
-                return 0;
-            }
-            else {
-                break;
-            }
-        }
-        else {
-            if (errno == EINTR) {
-                continue;
-            }
-            return -1;
-        }
-    }
-    *buffer = 0;
-    return n;
-}

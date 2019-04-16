@@ -2,7 +2,7 @@
 // Created by kalesh on 4/15/19.
 //
 
-#include "server-conn.h"
+#include "connection.h"
 
 #include <string.h>         // memset()
 #include <stdio.h>          // perror()

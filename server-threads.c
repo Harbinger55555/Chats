@@ -10,6 +10,8 @@ struct client_conn client_conns[MAX_CLIENT_CONNS];  // Client connections
 void *send_msg(void *args) {
     struct thread_args *a = (struct thread_args *) args;
     while (a->conn->alive == 1) {   // TODO: Check if this is consistent if not change to sig_atomic (which is also int).
+        // TODO: Since the write is just a decremetn to  an int, which is atomic on most systems. It might be sufficient
+        // to mark this variable as volatile to prevent comiler optimizations.
         acquire_shared();
         send(a->conn->sockfd, (void*) a->msg_buffer, a->size, 0);
         release_shared();

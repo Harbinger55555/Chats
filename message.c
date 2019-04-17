@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-/* Write a message to a socket */
+// Write a message to a socket
 ssize_t write_message(int sockfd, const void *message, size_t msg_length) {
     size_t          rem_msg_len;
     ssize_t         writ_msg_len;
@@ -30,7 +30,7 @@ ssize_t write_message(int sockfd, const void *message, size_t msg_length) {
     return msg_length;
 }
 
-/* Read a message from a socket */
+// Read a message from a socket
 ssize_t read_message(int sockfd, void *message, size_t maxlen) {
     ssize_t n, bytes_read;
     char c, * buffer;

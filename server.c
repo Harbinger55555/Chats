@@ -3,7 +3,7 @@
 //
 
 #include <stdio.h>
-#include "connection.h"
+#include "connect.h"
 
 // Global constants
 //#define MAX_SIZE 1000
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     list_sock = Socket(AF_INET, SOCK_STREAM, 0);
 
     // Initialize the socket address struct
-    init_sockaddr(&serv_addr, ip_addr, port);
+    init_server_sockaddr(&serv_addr, ip_addr, port);
 
     // Bind socket address to listening socket
     Bind(list_sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr));

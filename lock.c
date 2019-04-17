@@ -33,7 +33,6 @@ void acquire_exclusive() {
     }
     r_count = -1;               // Writer is currently in its critical section
     pthread_mutex_unlock(&mutex);
-
 }
 
 /*

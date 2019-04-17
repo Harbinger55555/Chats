@@ -9,7 +9,7 @@ struct client_conn client_conns[MAX_CLIENT_CONNS];  // Client connections
 
 void *send_msg(void *args) {
     struct thread_args *a = (struct thread_args *) args;
-    while (1) {
+    while (a->conn->alive == 1) {   // TODO: Check if this is consistent if not change to sig_atomic (which is also int).
         acquire_shared();
         send(a->conn->sockfd, (void*) a->msg_buffer, a->size, 0);
         release_shared();
@@ -28,17 +28,20 @@ void *recv_msg(void *args) {
     // 2. Close the sock fd
     // 3. Set alive to 0.
     // 3. Exit this thread (pthread_exit).
-    while (1) {
+    while (a->conn->alive == 1) {
         if (recv(a->conn->sockfd, (void *) &tmp_buffer, a->size, 0) == 0) {
             // TODO: Handle cleanup
+            a->conn->alive--;
+        } else {
+            acquire_exclusive();
+            printf("Recieved: %s\n", tmp_buffer);
+            memcpy((void *) a->msg_buffer, (const void *) &tmp_buffer, MAX_SIZE);
+            release_exclusive();
         }
-        acquire_exclusive();
-        printf("Recieved: %s\n", tmp_buffer);
-        memcpy((void*) a->msg_buffer, (const void*) &tmp_buffer, MAX_SIZE);
-        release_exclusive();
     }
     return NULL;
 }
+
 void init_client_conns() {
     for (int i = 0; i < MAX_CLIENT_CONNS; i++) {
         client_conns[i].alive = 0;
@@ -56,7 +59,7 @@ int next_client_conn() {
 
 int add_client_conn(int sockfd) {
     int next = next_client_conn();
-    if (next > 0 && next < MAX_CLIENT_CONNS) {
+    if (next >= 0 && next < MAX_CLIENT_CONNS) {
         client_conns[next].sockfd = sockfd;
         client_conns[next].alive = 1;
         struct thread_args args = {msg_buffer, MAX_SIZE, &(client_conns[next])};

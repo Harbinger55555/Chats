@@ -1,10 +1,10 @@
 CC = gcc
-OPTS = -g -Wall -Werror -std=c99 -D_DEFAULT_SOURCE
+OPTS = -g -Wall -Werror -std=c99 -pthread -D_DEFAULT_SOURCE
 INCS = $(wildcard *.h)
 
 all: server client
 
-server: server.o connection.o message.o lock.o
+server: server.o connection.o message.o lock.o server-threads.o
 	$(CC) $(OPTS) $^ -o $@
 
 client: client.o connection.o message.o

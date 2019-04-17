@@ -62,3 +62,13 @@ ssize_t read_message(int sockfd, void *message, size_t maxlen) {
     *buffer = 0;
     return n;
 }
+
+void* echo(void* args) {
+    struct thread_args* a =  (struct thread_args*) args;
+    while(1) {
+        pthread_mutex_lock(a->msg_mutex);
+        read_message(a->sock_fd, a->buffer, a->size);
+        write_message(a->sock_fd, a->buffer, a->size);
+        pthread_mutex_unlock(a->msg_mutex);
+    }
+}

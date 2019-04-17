@@ -1,5 +1,5 @@
 CC = gcc
-OPTS = -g -Wall -Werror -std=c99 -D_DEFAULT_SOURCE
+OPTS = -g -Wall -Werror -std=c99 -pthread -D_DEFAULT_SOURCE
 INCS = $(wildcard *.h)
 
 all: server client

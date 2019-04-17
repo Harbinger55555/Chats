@@ -68,17 +68,19 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    /* Get string to echo from user */
-    printf("Enter message to echo: ");
-    fgets(buffer, MAX_LINE, stdin);
+    while (1) {
+        /* Get string to echo from user */
+        printf("Enter message to echo: ");
+        fgets(buffer, MAX_LINE, stdin);
 
-    /* Send string to echo server, and retrieve response */
-    write_message(conn_s, buffer, strlen(buffer));
-    read_message(conn_s, buffer, MAX_LINE-1);
+        /* Send string to echo server, and retrieve response */
+        write_message(conn_s, buffer, strlen(buffer));
+        read_message(conn_s, buffer, MAX_LINE - 1);
 
-    /* Output echoed string */
-    printf("Echo response: %s\n", buffer);
+        /* Output echoed string */
+        printf("Echo response: %s\n", buffer);
+    }
 
-    return EXIT_SUCCESS;
+    // return EXIT_SUCCESS;
 }
 

@@ -5,10 +5,17 @@
 #ifndef CHATS_SERVER_CONN_H
 #define CHATS_SERVER_CONN_H
 
-#include <sys/socket.h>     // Socket definitions
-#include <arpa/inet.h>      // inet functions
+#include <sys/socket.h>         // Socket definitions
+#include <arpa/inet.h>          // inet functions
+#include <pthread.h>            // pthreads
 
-#define LISTENQ 1024        // Backlog for listen
+#define LISTENQ 1024            // Backlog for listen
+#define MAX_CLIENT_CONN 1000    // Max client connections
+
+struct client_conn {
+    int sock_fd;
+    pthread_t thread;
+};
 
 int Socket(int domain, int type, int protocol);
 

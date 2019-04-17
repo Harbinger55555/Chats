@@ -12,7 +12,9 @@
 
 int Socket(int domain, int type, int protocol);
 
-void init_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short port);
+void init_server_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short port);
+
+void init_client_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short port);
 
 void Bind(int list_sock, struct sockaddr* serv_addr, size_t serv_addr_sz);
 
@@ -20,6 +22,7 @@ void Listen(int sock);
 
 int Accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 
+void Connect(int sock, struct sockaddr *servaddr, size_t serv_addr_sz);
 
 void Close(int fd);
 

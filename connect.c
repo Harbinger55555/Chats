@@ -2,7 +2,7 @@
 // Created by kalesh on 4/15/19.
 //
 
-#include "connection.h"
+#include "connect.h"
 
 #include <string.h>         // memset()
 #include <stdio.h>          // perror()
@@ -24,7 +24,7 @@ int Socket(int domain, int type, int protocol) {
     return sock_fd;
 }
 
-void init_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short port) {
+void init_server_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short port) {
     memset(serv_addr, 0, sizeof(*serv_addr));
     serv_addr->sin_family = AF_INET;
     serv_addr->sin_port =htons((uint16_t) port);
@@ -32,6 +32,19 @@ void init_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short port) {
     if (inet_aton(ip_addr, &in) == 0) {
         fprintf(stderr, "Invalid IP address provided, binding socket to all available local interfaces.\n");
         serv_addr->sin_addr.s_addr = htonl(INADDR_ANY);
+    } else {
+        serv_addr->sin_addr.s_addr = in.s_addr;
+    }
+}
+
+void init_client_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short port) {
+    memset(serv_addr, 0, sizeof(*serv_addr));
+    serv_addr->sin_family = AF_INET;
+    serv_addr->sin_port =htons((uint16_t) port);
+    struct in_addr in;
+    if (inet_aton(ip_addr, &in) <= 0) {
+        fprintf(stderr, "Invalid IP address provided\n");
+        exit(EXIT_FAILURE);
     } else {
         serv_addr->sin_addr.s_addr = in.s_addr;
     }
@@ -51,6 +64,12 @@ void Listen(int sock) {
     }
 }
 
+void Connect(int sock, struct sockaddr *servaddr, size_t serv_addr_sz) {
+    if (connect(sock, servaddr, serv_addr_sz) < 0) {
+        perror("connect: ");
+        exit(EXIT_FAILURE);
+    }
+}
 
 int Accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
     int conn_fd;

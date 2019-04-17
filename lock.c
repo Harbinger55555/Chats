@@ -20,12 +20,7 @@ void init_rw_lock() {
     pthread_cond_init(&read_phase, NULL);
     pthread_cond_init(&write_phase, NULL);
     msg_avail = 0;
-    // Initialize the mutex
-    if (pthread_mutex_init(&mutex, NULL) != 0)
-    {
-        fprintf(stderr, "Mutex init has failed\n");
-        exit(EXIT_FAILURE);
-    }
+    pthread_mutex_init(&mutex, NULL);
 }
 
 /*

@@ -24,6 +24,7 @@ void *send_msg(void *args) {
     pthread_mutex_unlock(&(a->conn->alive_mutex));          // UNLOCK
     pthread_mutex_destroy(&(a->conn->alive_mutex));         // Destroy the mutex to allow reinitialization for a future client
     Close(a->conn->sockfd);                                 // Close the connection socket
+    printf("Closed FD %d\n", a->conn->sockfd);
     return NULL;
 }
 
@@ -37,6 +38,7 @@ void *recv_msg(void *args) {
             if (recv(a->conn->sockfd, (void *) &tmp_buffer, a->size, 0) == 0) {
                 pthread_mutex_lock(&(a->conn->alive_mutex));    // LOCK
                 a->conn->alive = 0;                             // Client no longer alive (i.e disconnected)
+                printf("Client with FD %d disconnected\n", a->conn->sockfd);
                 pthread_mutex_unlock(&(a->conn->alive_mutex));  // UNLOCK
             } else {
                 acquire_exclusive();
@@ -77,6 +79,7 @@ int add_client_conn(int sockfd) {
         struct thread_args args = {msg_buffer, MAX_SIZE, &(client_conns[next])};
         pthread_create(&(client_conns[next].send_thread), NULL, send_msg, (void *) &args);
         pthread_create(&(client_conns[next].recv_thread), NULL, recv_msg, (void *) &args);
+        printf("Added new client with FD %d\n", sockfd);
     }
     return next;
 }

@@ -42,6 +42,9 @@ int main(int argc, char* argv[]) {
         int sockfd = Accept(list_sock, NULL, NULL);
 
         // Add the client connection
-        add_client_conn(sockfd);
+        if (add_client_conn(sockfd) < 0) {
+            fprintf(stderr, "Cannot accept more connections at this time.\n");
+            Close(sockfd);
+        }
     }
 }

@@ -21,12 +21,8 @@ struct client_conn {
     pthread_t send_thread;
     pthread_t recv_thread;
     pthread_mutex_t alive_mutex;    // Mutex to enforce atomicity for alive check
-};
-
-struct thread_args {
-    char *msg_buffer;
+    char* msg_buffer;
     size_t size;
-    struct client_conn *conn;
 };
 
 extern char msg_buffer[MAX_SIZE];                           // Message buffer

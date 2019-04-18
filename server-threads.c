@@ -8,6 +8,10 @@
 char msg_buffer[MAX_SIZE];                                  // Message buffer
 struct client_conn client_conns[MAX_CLIENT_CONNS];          // Client connections
 
+
+pthread_mutex_t next_mutex;
+pthread_cond_t next_cond;       // Condition variable to signal next msg available.
+
 void *send_msg(void *args) {
     struct client_conn *a = (struct client_conn *) args;
     while (1) {
@@ -18,6 +22,9 @@ void *send_msg(void *args) {
             send(a->sockfd, (void *) a->msg_buffer, strlen(msg_buffer), 0);
             printf("Sent %s to FD %d\n", msg_buffer, a->sockfd);
             release_shared();
+            pthread_mutex_lock(&next_mutex);
+            pthread_cond_wait(&next_cond, &next_mutex);
+            pthread_mutex_unlock(&next_mutex);
         } else {
             break;
         }
@@ -47,6 +54,9 @@ void *recv_msg(void *args) {
                 printf("Recieved: %s\n", tmp_buffer);
                 memcpy((void *) a->msg_buffer, (const void *) tmp_buffer, bytes_recv);
                 printf("Wrote received msg to shared buffer.\n");
+                pthread_mutex_lock(&next_mutex);
+                pthread_cond_broadcast(&next_cond);
+                pthread_mutex_unlock(&next_mutex);
                 release_exclusive();
             }
         } else {
@@ -59,6 +69,8 @@ void *recv_msg(void *args) {
 
 void init_client_conns() {
     init_rw_lock();                                 // Initialize the reader writer lock
+    pthread_mutex_init(&next_mutex, NULL);
+    pthread_cond_init(&next_cond, NULL);
     for (int i = 0; i < MAX_CLIENT_CONNS; i++) {    // All connections are initially not live
         client_conns[i].alive = 0;
     }

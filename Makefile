@@ -4,7 +4,7 @@ INCS = $(wildcard *.h)
 
 all: server client
 
-server: server.o connection.o message.o lock.o server-threads.o
+server: server.o connect.o message.o lock.o server-threads.o
 	$(CC) $(OPTS) $^ -o $@
 
 client: client.o connect.o message.o

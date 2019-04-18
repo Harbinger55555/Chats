@@ -20,6 +20,7 @@ struct client_conn {
     volatile int alive;
     pthread_t send_thread;
     pthread_t recv_thread;
+    pthread_mutex_t alive_mutex;    // Mutex to enforce atomicity for alive check
 };
 
 struct thread_args {
@@ -30,7 +31,6 @@ struct thread_args {
 
 extern char msg_buffer[MAX_SIZE];                           // Message buffer
 extern struct client_conn client_conns[MAX_CLIENT_CONNS];   // Client connections
-extern pthread_mutex_t alive_mutex;                         // Mutex to enforce atomicity for alive check
 
 void *send_msg(void *args);
 

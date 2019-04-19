@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-char input_buffer[MAX_SIZE];
+volatile char input_buffer[MAX_SIZE];
 int input_count;
 
 void *send_msg(void *args) {
@@ -19,15 +19,17 @@ void *send_msg(void *args) {
     while (1) {
         printf("Enter message to echo: ");
 //        fgets(msg_buffer, MAX_SIZE, stdin);
-        char *ch = input_buffer;
+        char *ch = (char*) input_buffer;
         input_count = 0;
         while ((*ch = getchar()) != '\n') {
             ch++;
             input_count++;
+            *ch = '\0';
         }
         *ch = '\0';
-        send(sockfd, (void *) input_buffer, strlen(input_buffer) + 1, 0);
+        send(sockfd, (void *) input_buffer, strlen((char*) input_buffer) + 1, 0);
         printf("\nSent %s to Server\n", input_buffer);
+        input_buffer[0] = '\0';
     }
 }
 
@@ -42,15 +44,19 @@ void *recv_msg(void *args) {
         // TODO: Delete the current line
         printf("%c[2K\r", 27);
         printf("Received: %s\n", msg_buffer);
-        printf("Input count: %d\n", input_count);
+//        printf("Input count: %d\n", input_count);
         printf("Enter message to echo: ");
         fflush(stdout);
-        char* ch = input_buffer;
+        /*char* ch = input_buffer;
         for (int i = 0; i < input_count; i++) {
-            putc(*ch, stdout);
+            putchar(*ch);
             ch++;
         }
+         */
+//        printf("%s", input_buffer);
         fflush(stdout);
+        printf("No buffer input\n");
+//        input_buffer[0] = '\0';
     }
 }
 

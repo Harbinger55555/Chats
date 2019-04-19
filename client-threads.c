@@ -13,20 +13,31 @@
 
 volatile char input_buffer[MAX_SIZE];
 int input_count;
+pthread_mutex_t input_mutex;
 
 void *send_msg(void *args) {
     int sockfd = *((int *) args);
     while (1) {
         printf("Enter message to echo: ");
-//        fgets(msg_buffer, MAX_SIZE, stdin);
         char *ch = (char*) input_buffer;
         input_count = 0;
+        while (1) {
+            *ch = getchar();
+            if (*ch == '\n') {
+                break;
+            }
+            ch++;
+            *ch = '\0';
+        }
+        *ch = '\0';
+        /*
         while ((*ch = getchar()) != '\n') {
             ch++;
             input_count++;
             *ch = '\0';
         }
         *ch = '\0';
+         * */
         send(sockfd, (void *) input_buffer, strlen((char*) input_buffer) + 1, 0);
         printf("\nSent %s to Server\n", input_buffer);
         input_buffer[0] = '\0';
@@ -62,6 +73,7 @@ void *recv_msg(void *args) {
 
 
 void start_client_threads(int sockfd) {
+    pthread_mutex_init(&input_mutex, NULL);
     pthread_t send_thread;
     pthread_t recv_thread;
     pthread_create(&send_thread, NULL, send_msg, (void *) &sockfd);

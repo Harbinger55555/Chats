@@ -11,16 +11,16 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define PROMPT "Enter message to echo: "
+
 volatile char input_buffer[MAX_SIZE];
-int input_count;
 pthread_mutex_t input_mutex;
 
 void *send_msg(void *args) {
     int sockfd = *((int *) args);
     while (1) {
-        printf("Enter message to echo: ");
+        printf(PROMPT);
         volatile char *ch = input_buffer;
-        input_count = 0;
         while (1) {
             char tmp = getchar();
             pthread_mutex_lock(&input_mutex);
@@ -52,8 +52,8 @@ void *recv_msg(void *args) {
         pthread_mutex_lock(&input_mutex);
         printf("%c[2K\r", 27);
         printf("Received: %s\n", msg_buffer);
-        printf("Enter message to echo: ");
-        printf("%s", input_buffer);         // Troubleshoot
+        printf(PROMPT);
+        printf("%s", input_buffer);         // TODO: Troubleshoot
         fflush(stdout);
         pthread_mutex_unlock(&input_mutex);
     }

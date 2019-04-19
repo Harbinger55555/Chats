@@ -19,7 +19,7 @@ void *send_msg(void *args) {
     int sockfd = *((int *) args);
     while (1) {
         printf("Enter message to echo: ");
-        char *ch = (char*) input_buffer;
+        volatile char *ch = input_buffer;
         input_count = 0;
         while (1) {
             char tmp = getchar();
@@ -35,7 +35,7 @@ void *send_msg(void *args) {
         *ch = '\0';
         send(sockfd, (void *) input_buffer, strlen((char*) input_buffer) + 1, 0);
         printf("\nSent %s to Server\n", input_buffer);
-        *((char*)input_buffer) = '\0';
+        *(input_buffer) = '\0';
         pthread_mutex_unlock(&input_mutex);
     }
 }

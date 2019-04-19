@@ -38,6 +38,8 @@ int main(int argc, char *argv[]) {
     // Connect to the remote echo server
     Connect(conn_s, (struct sockaddr *) &servaddr, sizeof(servaddr));
 
+    // TODO: Get username;
+
     start_client_threads(conn_s);
     /*
     while(1) {

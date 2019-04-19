@@ -7,13 +7,9 @@
 #include <arpa/inet.h>              // inet (3) function
 #include <unistd.h>                 // misc. UNIX functions
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-
 #include "message.h"
 #include "connect.h"
+#include "client-threads.h"
 
 // Global constants
 #define MAX_LINE        (1000)
@@ -25,7 +21,7 @@ int main(int argc, char *argv[]) {
     int         conn_s;                     // connection socket
     short       port;                       // port number
     struct      sockaddr_in servaddr;       // socket address structure
-    char        buffer[MAX_LINE];           // character buffer
+//    char        buffer[MAX_LINE];           // character buffer
     char*       ip_addr;                    // server IP address
 
     // Set the remote port and remote ip address
@@ -42,6 +38,8 @@ int main(int argc, char *argv[]) {
     // Connect to the remote echo server
     Connect(conn_s, (struct sockaddr *) &servaddr, sizeof(servaddr));
 
+    start_client_threads(conn_s);
+    /*
     while(1) {
         // Get string to echo from user
         printf("Enter message to echo: ");
@@ -54,6 +52,6 @@ int main(int argc, char *argv[]) {
         // Output echoed string
         printf("Echo response: %s\n", buffer);
     }
-    return EXIT_SUCCESS;
+     */
 }
 

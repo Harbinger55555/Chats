@@ -19,7 +19,7 @@ void *send_msg(void *args) {
         if (a->alive == 1) {
             pthread_mutex_unlock(&(a->alive_mutex));  // UNLOCK
             acquire_shared();
-            send(a->sockfd, (void *) a->msg_buffer, strlen(msg_buffer), 0);
+            send(a->sockfd, (void *) a->msg_buffer, strlen(msg_buffer) + 1, 0);
             printf("Sent %s to FD %d\n", msg_buffer, a->sockfd);
             release_shared();
             pthread_mutex_lock(&next_mutex);
@@ -48,6 +48,9 @@ void *recv_msg(void *args) {
                 pthread_mutex_lock(&(a->alive_mutex));    // LOCK
                 a->alive = 0;                             // Client no longer alive (i.e disconnected)
                 printf("Client with FD %d disconnected\n", a->sockfd);
+                pthread_mutex_lock(&next_mutex);
+                pthread_cond_broadcast(&next_cond);
+                pthread_mutex_unlock(&next_mutex);
                 pthread_mutex_unlock(&(a->alive_mutex));  // UNLOCK
             } else {
                 acquire_exclusive();

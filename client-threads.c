@@ -22,25 +22,21 @@ void *send_msg(void *args) {
         char *ch = (char*) input_buffer;
         input_count = 0;
         while (1) {
-            *ch = getchar();
+            char tmp = getchar();
+            pthread_mutex_lock(&input_mutex);
+            *ch = tmp;
             if (*ch == '\n') {
                 break;
             }
             ch++;
             *ch = '\0';
+            pthread_mutex_unlock(&input_mutex);
         }
         *ch = '\0';
-        /*
-        while ((*ch = getchar()) != '\n') {
-            ch++;
-            input_count++;
-            *ch = '\0';
-        }
-        *ch = '\0';
-         * */
         send(sockfd, (void *) input_buffer, strlen((char*) input_buffer) + 1, 0);
         printf("\nSent %s to Server\n", input_buffer);
-        input_buffer[0] = '\0';
+        *((char*)input_buffer) = '\0';
+        pthread_mutex_unlock(&input_mutex);
     }
 }
 
@@ -52,22 +48,14 @@ void *recv_msg(void *args) {
             fprintf(stderr, "Server disconnected\n");
             exit(EXIT_FAILURE);
         }
-        // TODO: Delete the current line
+        // Delete the current line
+        pthread_mutex_lock(&input_mutex);
         printf("%c[2K\r", 27);
         printf("Received: %s\n", msg_buffer);
-//        printf("Input count: %d\n", input_count);
         printf("Enter message to echo: ");
+        printf("%s", input_buffer);         // Troubleshoot
         fflush(stdout);
-        /*char* ch = input_buffer;
-        for (int i = 0; i < input_count; i++) {
-            putchar(*ch);
-            ch++;
-        }
-         */
-//        printf("%s", input_buffer);
-        fflush(stdout);
-        printf("No buffer input\n");
-//        input_buffer[0] = '\0';
+        pthread_mutex_unlock(&input_mutex);
     }
 }
 

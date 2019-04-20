@@ -18,6 +18,7 @@
 struct client_conn {
     int sockfd;
     volatile int alive;
+    int cleanedup;
     pthread_t send_thread;
     pthread_t recv_thread;
     pthread_mutex_t alive_mutex;    // Mutex to enforce atomicity for alive check

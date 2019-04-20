@@ -36,6 +36,7 @@ void *send_msg(void *args) {
     pthread_mutex_destroy(&(a->alive_mutex));         // Destroy the mutex to allow reinitialization for a future client
     Close(a->sockfd);                                 // Close the connection socket
     printf("Closed FD %d\n", a->sockfd);
+    a->cleanedup = 1;
     return NULL;
 }
 
@@ -80,12 +81,14 @@ void init_client_conns() {
     pthread_cond_init(&next_cond, NULL);
     for (int i = 0; i < MAX_CLIENT_CONNS; i++) {    // All connections are initially not live
         client_conns[i].alive = 0;
+        client_conns[i].cleanedup = 1;
     }
 }
 
 int next_client_conn() {
     for (int i = 0; i < MAX_CLIENT_CONNS; i++) {
-        if (client_conns[i].alive == 0) {
+        if (client_conns[i].alive == 0
+            && client_conns[i].cleanedup == 1) {
             return i;
         }
     }

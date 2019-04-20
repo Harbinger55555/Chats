@@ -19,7 +19,7 @@ void *send_msg(void *args) {
         if (a->alive == 1) {
             pthread_mutex_unlock(&(a->alive_mutex));  // UNLOCK
             acquire_shared();
-            // If thread was woken up due to client disconnect don't send anything
+            // Only send msg if client didn't disconnect.
             if (strlen(msg_buffer) > 0) {
                 send(a->sockfd, (void *) a->msg_buffer, strlen(msg_buffer) + 1, 0);
                 printf("Sent %s to FD %d\n", msg_buffer, a->sockfd);

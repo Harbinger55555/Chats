@@ -6,8 +6,6 @@
 #define CHATS_LOCK_H
 
 #include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 extern int r_count;                     // Readers count
 extern int r_wait_count;                // Readers waiting count

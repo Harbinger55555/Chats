@@ -19,8 +19,11 @@ void *send_msg(void *args) {
         if (a->alive == 1) {
             pthread_mutex_unlock(&(a->alive_mutex));  // UNLOCK
             acquire_shared();
-            send(a->sockfd, (void *) a->msg_buffer, strlen(msg_buffer) + 1, 0);
-            printf("Sent %s to FD %d\n", msg_buffer, a->sockfd);
+            // Only send msg if client didn't disconnect.
+            if (strlen(msg_buffer) > 0) {
+                send(a->sockfd, (void *) a->msg_buffer, strlen(msg_buffer) + 1, 0);
+                printf("Sent %s to FD %d\n", msg_buffer, a->sockfd);
+            }
             release_shared();
             pthread_mutex_lock(&next_mutex);
             pthread_cond_wait(&next_cond, &next_mutex);
@@ -40,33 +43,34 @@ void *recv_msg(void *args) {
     char tmp_buffer[MAX_SIZE];
     struct client_conn *a = (struct client_conn *) args;
     while (1) {
-        pthread_mutex_lock(&(a->alive_mutex));            // LOCK
+        // No need to lock as only this thread can change the value of
+        // the alive variable.
         if (a->alive == 1) {                              // UNLOCK
-            pthread_mutex_unlock(&(a->alive_mutex));
-            size_t bytes_recv = 0;
-            if ((bytes_recv = recv(a->sockfd, (void *) &tmp_buffer, a->size, 0)) == 0) {
-                pthread_mutex_lock(&(a->alive_mutex));    // LOCK
-                a->alive = 0;                             // Client no longer alive (i.e disconnected)
-                printf("Client with FD %d disconnected\n", a->sockfd);
-                pthread_mutex_lock(&next_mutex);
-                pthread_cond_broadcast(&next_cond);
-                pthread_mutex_unlock(&next_mutex);
-                pthread_mutex_unlock(&(a->alive_mutex));  // UNLOCK
-            } else {
-                acquire_exclusive();
+            int bytes_recv = recv(a->sockfd, (void *) &tmp_buffer, a->size, 0);
+
+            acquire_exclusive();
+
+            if (bytes_recv > 0) {
                 printf("Recieved: %s\n", tmp_buffer);
                 memcpy((void *) a->msg_buffer, (const void *) tmp_buffer, bytes_recv);
                 printf("Wrote received msg to shared buffer.\n");
-                pthread_mutex_lock(&next_mutex);
-                pthread_cond_broadcast(&next_cond);
-                pthread_mutex_unlock(&next_mutex);
-                release_exclusive();
+            } else {
+                pthread_mutex_lock(&(a->alive_mutex));    // LOCK
+                a->alive = 0;                             // Client no longer alive (i.e disconnected)
+                msg_buffer[0] = '\0';
+                printf("Client with FD %d disconnected\n", a->sockfd);
+                pthread_mutex_unlock(&(a->alive_mutex));  // UNLOCK
             }
+
+            pthread_mutex_lock(&next_mutex);
+            pthread_cond_broadcast(&next_cond);
+            pthread_mutex_unlock(&next_mutex);
+
+            release_exclusive();
         } else {
             break;
         }
     }
-    pthread_mutex_unlock(&(a->alive_mutex));              // UNLOCK
     return NULL;
 }
 

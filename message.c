@@ -8,19 +8,15 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <stdlib.h>
 
-
-#define DEFAULT_RECEIVER "ALL"
 
 /*
  * Copies message to buffer in the following format
  *  Msg Buffer: [msg|sender|receiver]
+ *  Returns size of buffer.
  */
-void msgcpy(char *msg_buffer, struct message *msg) {
-    if (msg->receiver == NULL) {
-        msg->receiver = DEFAULT_RECEIVER;
-    }
-
+int msgcpy(char *msg_buffer, struct message *msg) {
     uint32_t msg_len = strlen(msg->msg) + 1;
     uint32_t sender_len = strlen(msg->sender) + 1;
     uint32_t receiver_len = strlen(msg->receiver) + 1;
@@ -36,6 +32,13 @@ void msgcpy(char *msg_buffer, struct message *msg) {
     memcpy((void *) msg_buffer, (const void *) &receiver_len, sizeof(uint32_t));
     msg_buffer += sizeof(uint32_t);
     memcpy((void *) msg_buffer, (const void *) msg->receiver, receiver_len);
+
+    if (receiver_len <= 1) {
+        memcpy((void*) &msg->receiver, (const void*) DEFAULT_RECEIVER,
+               strlen(DEFAULT_RECEIVER) + 1);
+    }
+
+    return msg_len + sender_len + receiver_len + (3 * sizeof(uint32_t));
 }
 
 
@@ -69,3 +72,4 @@ int unpack_msg(int sockfd, struct message *msg) {
     bytes_recv = recv(sockfd, (void *) &msg->receiver, receiver_len, 0);
     return bytes_recv;
 }
+

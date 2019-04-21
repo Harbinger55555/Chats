@@ -38,6 +38,6 @@ int main(int argc, char *argv[]) {
 
     // TODO: Get username;
 
-    start_client_threads(conn_s);
+    start_client_threads(conn_s, "Guest");
 }
 

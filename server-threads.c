@@ -4,7 +4,6 @@
 
 #include "server-threads.h"
 #include "connect.h"
-#include <stdlib.h>
 
 char msg_buffer[MAX_SIZE];                                  // Message buffer
 struct client_conn client_conns[MAX_CLIENT_CONNS];          // Client connections
@@ -22,7 +21,15 @@ void *send_msg(void *args) {
             acquire_shared();
             // Only send msg if client didn't disconnect.
             if (strlen(msg_buffer) > 0) {
-                send(a->sockfd, (void *) a->msg_buffer, strlen(msg_buffer) + 1, 0);
+
+                void* buffer = (void*) a->msg_buffer;
+                for (int i = 0; i < 3; i++) {
+                    send(a->sockfd, buffer, sizeof(uint32_t), 0);
+                    buffer += sizeof(uint32_t);
+                    send(a->sockfd, buffer, strlen((char *) buffer) + 1, 0);
+                    buffer += strlen((char *) buffer) + 1;
+                }
+
                 printf("Sent %s to FD %d\n", msg_buffer, a->sockfd);
             }
             release_shared();
@@ -35,10 +42,6 @@ void *send_msg(void *args) {
     }
     pthread_mutex_unlock(&(a->alive_mutex));          // UNLOCK
     pthread_mutex_destroy(&(a->alive_mutex));         // Destroy the mutex to allow reinitialization for a future client
-    // Free space allocated for message and usernaems
-    free(a->msg.msg);
-    free(a->msg.receiver);
-    free(a->msg.sender);
     Close(a->sockfd);                                 // Close the connection socket
     printf("Closed FD %d\n", a->sockfd);
     a->cleanedup = 1;
@@ -46,7 +49,7 @@ void *send_msg(void *args) {
 }
 
 void *recv_msg(void *args) {
-    char tmp_buffer[MAX_SIZE];
+//    char tmp_buffer[MAX_SIZE];
     struct client_conn *a = (struct client_conn *) args;
     while (1) {
         // No need to lock as only this thread can change the value of
@@ -58,8 +61,11 @@ void *recv_msg(void *args) {
             acquire_exclusive();
 
             if (bytes_recv > 0) {
-                printf("Recieved: %s\n", tmp_buffer);
-                memcpy((void *) a->msg_buffer, (const void *) tmp_buffer, bytes_recv);
+                printf("Recieved: %s form %s to send to %s\n", a->msg.msg, a->msg.sender, a->msg.receiver);
+//                memcpy((void *) a->msg_buffer, (const void *) tmp_buffer, bytes_recv);
+
+                msgcpy(a->msg_buffer, &a->msg);
+//                send(a->sockfd, (void *) msg_buffer, buf_len, 0);
                 printf("Wrote received msg to shared buffer.\n");
             } else {
                 pthread_mutex_lock(&(a->alive_mutex));    // LOCK
@@ -110,9 +116,6 @@ int add_client_conn(int sockfd) {
         pthread_mutex_init(&(client_conns[next].alive_mutex), NULL);    // Initialize alive mutex
         client_conns[next].msg_buffer = msg_buffer;
         client_conns[next].size = MAX_SIZE;
-        client_conns[next].msg.msg = malloc(MAX_LINE_SIZE * sizeof(char));
-        client_conns[next].msg.sender = malloc(MAX_USERNAME_SIZE * sizeof(char));
-        client_conns[next].msg.receiver = malloc(MAX_USERNAME_SIZE * sizeof(char));
         pthread_create(&(client_conns[next].send_thread), NULL, send_msg, (void *) &client_conns[next]);
         pthread_create(&(client_conns[next].recv_thread), NULL, recv_msg, (void *) &client_conns[next]);
         printf("Added new client with FD %d\n", sockfd);

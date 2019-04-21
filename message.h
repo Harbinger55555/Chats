@@ -10,18 +10,20 @@
 #define MAX_USERNAME_SIZE 31   // Including '\0'  (Only 30 useful)
 #define MAX_MSG_SIZE 1001       // Including '\0' (Only 30 useful)
 #define MAX_LINE_SIZE MAX_MSG_SIZE + (2 * MAX_USERNAME_SIZE)
+#define DEFAULT_RECEIVER "all"
 
 struct message {
-    char* msg;
-    char* sender;
-    char* receiver;
+    char msg[MAX_LINE_SIZE];
+    char sender[MAX_USERNAME_SIZE];
+    char receiver[MAX_USERNAME_SIZE];
 };
 
 /*
  * Copies message to buffer in the following format
  *  Msg Buffer: [msg|sender|receiver]
+ *  Returns the size of the buffer.
  */
-void msgcpy(char* msg_buffer, struct message* msg);
+int msgcpy(char *msg_buffer, struct message *msg);
 
 /* Unpacks incoming message on sockfd into message struct.
  * If return value if not positive then client disconnected.*/

@@ -3,62 +3,32 @@
 //
 
 #include "message.h"
-#include <sys/socket.h>
-#include <unistd.h>
-#include <errno.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
 
-// Write a message to a socket
-ssize_t write_message(int sockfd, const void *message, size_t msg_length) {
-    size_t          rem_msg_len;
-    ssize_t         writ_msg_len;
-    const char *    buffer;
+#define DEFAULT_RECEIVER "ALL"
 
-    buffer = message;
-    rem_msg_len = msg_length;
-    while (rem_msg_len > 0) {
-        if ((writ_msg_len = write(sockfd, buffer, rem_msg_len)) <= 0) {
-            if (errno == EINTR) {
-                writ_msg_len = 0;
-            }
-            else {
-                return -1;
-            }
-        }
-        rem_msg_len -= writ_msg_len;
-        buffer += writ_msg_len;
+/* Creates a message with boundaries */
+void create_msg(char* msg_buffer, struct message* msg) {
+    if (msg->receiver == NULL) {
+        msg->receiver = DEFAULT_RECEIVER;
     }
-    return msg_length;
+
+    uint32_t msg_len = strlen(msg->msg) + 1;
+    uint32_t sender_len = strlen(msg->sender) + 1;
+    uint32_t receiver_len = strlen(msg->receiver) + 1;
+
+    memcpy((void*) msg_buffer, (const void*) &msg_len, sizeof(uint32_t));
+    msg_buffer += sizeof(uint32_t);
+    memcpy((void*) msg_buffer, (const void*) msg->msg, msg_len);
+    msg_buffer += msg_len;
+    memcpy((void*) msg_buffer, (const void*) &sender_len, sizeof(uint32_t));
+    msg_buffer += sizeof(uint32_t);
+    memcpy((void*) msg_buffer, (const void*) msg->sender, sender_len);
+    msg_buffer += sender_len;
+    memcpy((void*) msg_buffer, (const void*) &receiver_len, sizeof(uint32_t));
+    msg_buffer += sizeof(uint32_t);
+    memcpy((void*) msg_buffer, (const void*) msg->receiver, receiver_len);
 }
 
-// Read a message from a socket
-ssize_t read_message(int sockfd, void *message, size_t maxlen) {
-    ssize_t n, bytes_read;
-    char c, * buffer;
-    buffer = message;
-
-    for (n = 1; n < maxlen; n++) {
-        // read a char from sockfd (file descriptior) into c
-        if ((bytes_read = read(sockfd, &c, 1)) == 1) {
-            *buffer++ = c;
-            if (c == '\n') {
-                break;
-            }
-        }
-        else if (bytes_read == 0) {
-            if (n == 1) {
-                return 0;
-            }
-            else {
-                break;
-            }
-        }
-        else {
-            if (errno == EINTR) {
-                continue;
-            }
-            return -1;
-        }
-    }
-    *buffer = 0;
-    return n;
-}

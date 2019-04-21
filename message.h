@@ -5,10 +5,14 @@
 #ifndef CHATS_MESSAGE_H
 #define CHATS_MESSAGE_H
 
-# include <unistd.h>
+struct message {
+    char* msg;
+    char* sender;
+    char* receiver;
+};
 
-/* Function declaration */
-ssize_t read_message(int fd, void *vptr, size_t maxlen);
-ssize_t write_message(int fc, const void *vptr, size_t maxlen);
+
+/* Creates a message with boundaries */
+void create_msg(char* msg_buffer, struct message* msg);
 
 #endif //CHATS_MESSAGE_H

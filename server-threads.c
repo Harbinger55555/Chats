@@ -52,8 +52,9 @@ void *recv_msg(void *args) {
         // No need to lock as only this thread can change the value of
         // the alive variable.
         if (a->alive == 1) {                              // UNLOCK
-            int bytes_recv = recv(a->sockfd, (void *) &tmp_buffer, a->size, 0);
+//            int bytes_recv = recv(a->sockfd, (void *) &tmp_buffer, a->size, 0);
 
+            int bytes_recv = unpack_msg(a->sockfd, (&a->msg));
             acquire_exclusive();
 
             if (bytes_recv > 0) {

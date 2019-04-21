@@ -13,7 +13,7 @@
 
 #define PROMPT "Enter message to echo: "
 
-volatile char input_buffer[MAX_SIZE];
+volatile char input_buffer[MAX_MSG_SIZE];
 pthread_mutex_t input_mutex;
 struct message send_message;
 
@@ -57,7 +57,7 @@ void *recv_msg(void *args) {
         // Delete the current line
         pthread_mutex_lock(&input_mutex);
         printf("%c[2K\r", 27);
-        printf("Received: %s from %s\n", recv_message.msg, recv_message.sender);
+        printf("%s: %s\n", recv_message.sender, recv_message.msg);
         printf(PROMPT);
         printf("%s", input_buffer);         // TODO: Troubleshoot
         fflush(stdout);

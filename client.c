@@ -6,6 +6,8 @@
 #include <sys/types.h>              // socket types
 #include <arpa/inet.h>              // inet (3) function
 #include <unistd.h>                 // misc. UNIX functions
+#include <stdio.h>
+#include <string.h>
 
 #include "message.h"
 #include "connect.h"
@@ -17,10 +19,10 @@
 
 int main(int argc, char *argv[]) {
 
-    int         conn_s;                     // connection socket
-    short       port;                       // port number
-    struct      sockaddr_in servaddr;       // socket address structure
-    char*       ip_addr;                    // server IP address
+    int conn_s;                     // connection socket
+    short port;                       // port number
+    struct sockaddr_in servaddr;       // socket address structure
+    char *ip_addr;                    // server IP address
 
     // Set the remote port and remote ip address
     port = DEFAULT_PORT;
@@ -37,7 +39,18 @@ int main(int argc, char *argv[]) {
     Connect(conn_s, (struct sockaddr *) &servaddr, sizeof(servaddr));
 
     // TODO: Get username;
+    char username[MAX_USERNAME_SIZE];
 
-    start_client_threads(conn_s, "Guest");
+    printf("Please enter your user name: ");
+    fflush(stdout);
+    fgets(username, MAX_USERNAME_SIZE, stdin);
+
+    // Strip the trailing newline
+    char *pos;
+    if ((pos = strchr(username, '\n')) != NULL) {
+        *pos = '\0';
+    }
+
+    start_client_threads(conn_s, username);
 }
 

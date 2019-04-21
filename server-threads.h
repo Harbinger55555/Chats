@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <pthread.h>
 
-#define MAX_SIZE 1000
 #define MAX_CLIENT_CONNS 1000
 
 struct client_conn {
@@ -27,12 +26,6 @@ struct client_conn {
     size_t size;
     struct message msg;
 };
-
-extern char msg_buffer[MAX_SIZE];                           // Message buffer
-extern struct client_conn client_conns[MAX_CLIENT_CONNS];   // Client connections
-
-extern pthread_mutex_t next_mutex;
-extern pthread_cond_t next_cond;       // Condition variable to signal next msg available.
 
 void *send_msg(void *args);
 

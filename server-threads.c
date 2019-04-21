@@ -100,6 +100,7 @@ int add_client_conn(int sockfd) {
     if (next >= 0 && next < MAX_CLIENT_CONNS) {
         client_conns[next].sockfd = sockfd;
         client_conns[next].alive = 1;
+        client_conns[next].cleanedup = 0;
         pthread_mutex_init(&(client_conns[next].alive_mutex), NULL);    // Initialize alive mutex
         client_conns[next].msg_buffer = msg_buffer;
         client_conns[next].size = MAX_SIZE;

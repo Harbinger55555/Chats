@@ -10,10 +10,10 @@
 #define DEFAULT_PORT 2002
 #define DEFAULT_IP_ADDR "127.0.0.1"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     int list_sock;                  // Listening socket
     short port;                     // Port number (default 2002)
-    char* ip_addr;                  // Ip Address (default "127.0.0.1")
+    char *ip_addr;                  // Ip Address (default "127.0.0.1")
     struct sockaddr_in serv_addr;   // Socket address structure
 
     // TODO: Parse the command line and set the default
@@ -23,6 +23,10 @@ int main(int argc, char* argv[]) {
 
     // Create listening socket
     list_sock = Socket(AF_INET, SOCK_STREAM, 0);
+
+    // Set socket options to allow port an address reuse.
+    int option;
+    setsockopt(list_sock, SOL_SOCKET, (SO_REUSEPORT | SO_REUSEADDR), (char *) &option, sizeof(option));
 
     // Initialize the socket address struct
     init_server_sockaddr(&serv_addr, ip_addr, port);

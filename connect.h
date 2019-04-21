@@ -18,7 +18,7 @@ void init_client_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short po
 
 void Bind(int list_sock, struct sockaddr* serv_addr, size_t serv_addr_sz);
 
-void Listen(int sock);
+void Listen(int sock, int backlog);
 
 int Accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 

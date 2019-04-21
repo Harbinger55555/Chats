@@ -57,8 +57,8 @@ void Bind(int list_sock, struct sockaddr* serv_addr, size_t serv_addr_sz) {
     }
 }
 
-void Listen(int sock) {
-    if (listen(sock, LISTENQ) < 0) {
+void Listen(int sock, int backlog) {
+    if (listen(sock, backlog) < 0) {
         perror("listen: ");
         exit(EXIT_FAILURE);
     }

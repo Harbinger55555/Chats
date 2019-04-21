@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     Bind(list_sock, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
 
     // Start listening
-    Listen(list_sock);
+    Listen(list_sock, LISTENQ);
 
     // Initialize the client connections
     init_client_conns();

@@ -34,6 +34,10 @@ void *send_msg(void *args) {
     }
     pthread_mutex_unlock(&(a->alive_mutex));          // UNLOCK
     pthread_mutex_destroy(&(a->alive_mutex));         // Destroy the mutex to allow reinitialization for a future client
+    // Free space allocated for message and usernaems
+    free(a->msg.msg);
+    free(a->msg.receiver);
+    free(a->msg.sender);
     Close(a->sockfd);                                 // Close the connection socket
     printf("Closed FD %d\n", a->sockfd);
     a->cleanedup = 1;
@@ -41,13 +45,25 @@ void *send_msg(void *args) {
 }
 
 void *recv_msg(void *args) {
+    uint32_t msg_len;
+    uint32_t sender_len;
+    uint32_t receiver_len;
     char tmp_buffer[MAX_SIZE];
     struct client_conn *a = (struct client_conn *) args;
     while (1) {
         // No need to lock as only this thread can change the value of
         // the alive variable.
         if (a->alive == 1) {                              // UNLOCK
-            int bytes_recv = recv(a->sockfd, (void *) &tmp_buffer, a->size, 0);
+//            int bytes_recv = recv(a->sockfd, (void *) &tmp_buffer, a->size, 0);
+            // TODO: Complete this
+            int bytes_recv = recv(a->sockfd, (void*) &msg_len, sizeof(uint32_t), 0);
+            if (bytes_recv > 0) {
+                bytes_recv = recv(a->sockfd, (void*) &tmp_buffer, msg_len, 0);
+            }
+            if (bytes_recv > 0) {
+                bytes_recv = recv(a->sockfd, (void*) &sender)
+            }
+            // TODO: End here
 
             acquire_exclusive();
 
@@ -104,6 +120,11 @@ int add_client_conn(int sockfd) {
         pthread_mutex_init(&(client_conns[next].alive_mutex), NULL);    // Initialize alive mutex
         client_conns[next].msg_buffer = msg_buffer;
         client_conns[next].size = MAX_SIZE;
+
+        client_conns[next].msg.msg = malloc(MAX_SIZE * sizeof(char));
+        client_conns[next].msg.sender = malloc(MAX_SIZE * sizeof(char));
+        client_conns[next].msg.receiver = malloc(MAX_SIZE * sizeof(char));
+
         pthread_create(&(client_conns[next].send_thread), NULL, send_msg, (void *) &client_conns[next]);
         pthread_create(&(client_conns[next].recv_thread), NULL, recv_msg, (void *) &client_conns[next]);
         printf("Added new client with FD %d\n", sockfd);

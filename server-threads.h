@@ -6,6 +6,7 @@
 #define CHATS_SERVER_THREADS_H
 
 #include "lock.h"
+#include "message.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <string.h>

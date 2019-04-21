@@ -12,7 +12,6 @@
 #include "client-threads.h"
 
 // Global constants
-#define MAX_LINE        (1000)
 #define DEFAULT_PORT    (2002)
 #define DEFAULT_IP_ADDR ("127.0.0.1")
 
@@ -21,7 +20,6 @@ int main(int argc, char *argv[]) {
     int         conn_s;                     // connection socket
     short       port;                       // port number
     struct      sockaddr_in servaddr;       // socket address structure
-//    char        buffer[MAX_LINE];           // character buffer
     char*       ip_addr;                    // server IP address
 
     // Set the remote port and remote ip address
@@ -41,19 +39,5 @@ int main(int argc, char *argv[]) {
     // TODO: Get username;
 
     start_client_threads(conn_s);
-    /*
-    while(1) {
-        // Get string to echo from user
-        printf("Enter message to echo: ");
-        fgets(buffer, MAX_LINE, stdin);
-
-        // Send string to echo server, and retrieve response
-        write_message(conn_s, buffer, strlen(buffer));
-        read_message(conn_s, buffer, MAX_LINE - 1);
-
-        // Output echoed string
-        printf("Echo response: %s\n", buffer);
-    }
-     */
 }
 

@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
 
 #define DEFAULT_RECEIVER "ALL"
 

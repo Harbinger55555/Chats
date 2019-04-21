@@ -21,7 +21,7 @@ void *send_msg(void *args) {
     char msg_buffer[MAX_LINE_SIZE];
     int sockfd = *((int *) args);
     while (1) {
-        printf(PROMPT);
+        printf(">%s: ", send_message.sender);
         volatile char *ch = input_buffer;
         while (1) {
             char tmp = getchar();
@@ -38,7 +38,6 @@ void *send_msg(void *args) {
         memcpy((void*) &(send_message.msg), (const void*) input_buffer, strlen((char*) input_buffer) + 1);
         int buf_len = msgcpy(msg_buffer, &send_message);
         send(sockfd, (void *) msg_buffer, buf_len, 0);
-        printf("\n%s sent %s to send to %s\n", send_message.sender, send_message.msg, send_message.receiver);
         *(input_buffer) = '\0';
         pthread_mutex_unlock(&input_mutex);
     }
@@ -57,8 +56,11 @@ void *recv_msg(void *args) {
         // Delete the current line
         pthread_mutex_lock(&input_mutex);
         printf("%c[2K\r", 27);
-        printf("%s: %s\n", recv_message.sender, recv_message.msg);
-        printf(PROMPT);
+        // TODO: Implement this check on the server if time permits
+        if (strcmp(recv_message.sender, send_message.sender) != 0) {
+            printf("<%s: %s\n", recv_message.sender, recv_message.msg);
+        }
+        printf(">%s: ", send_message.sender);
         printf("%s", input_buffer);         // TODO: Troubleshoot
         fflush(stdout);
         pthread_mutex_unlock(&input_mutex);

@@ -4,6 +4,7 @@
 
 #include "server-threads.h"
 #include "connect.h"
+#include <stdlib.h>
 
 char msg_buffer[MAX_SIZE];                                  // Message buffer
 struct client_conn client_conns[MAX_CLIENT_CONNS];          // Client connections
@@ -34,6 +35,10 @@ void *send_msg(void *args) {
     }
     pthread_mutex_unlock(&(a->alive_mutex));          // UNLOCK
     pthread_mutex_destroy(&(a->alive_mutex));         // Destroy the mutex to allow reinitialization for a future client
+    // Free space allocated for message and usernaems
+    free(a->msg.msg);
+    free(a->msg.receiver);
+    free(a->msg.sender);
     Close(a->sockfd);                                 // Close the connection socket
     printf("Closed FD %d\n", a->sockfd);
     a->cleanedup = 1;
@@ -104,6 +109,9 @@ int add_client_conn(int sockfd) {
         pthread_mutex_init(&(client_conns[next].alive_mutex), NULL);    // Initialize alive mutex
         client_conns[next].msg_buffer = msg_buffer;
         client_conns[next].size = MAX_SIZE;
+        client_conns[next].msg.msg = malloc(MAX_LINE_SIZE * sizeof(char));
+        client_conns[next].msg.sender = malloc(MAX_USERNAME_SIZE * sizeof(char));
+        client_conns[next].msg.receiver = malloc(MAX_USERNAME_SIZE * sizeof(char));
         pthread_create(&(client_conns[next].send_thread), NULL, send_msg, (void *) &client_conns[next]);
         pthread_create(&(client_conns[next].recv_thread), NULL, recv_msg, (void *) &client_conns[next]);
         printf("Added new client with FD %d\n", sockfd);

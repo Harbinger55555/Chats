@@ -6,6 +6,7 @@
 #define CHATS_SERVER_THREADS_H
 
 #include "lock.h"
+#include "message.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <string.h>
@@ -24,6 +25,7 @@ struct client_conn {
     pthread_mutex_t alive_mutex;    // Mutex to enforce atomicity for alive check
     char* msg_buffer;
     size_t size;
+    struct message msg;
 };
 
 extern char msg_buffer[MAX_SIZE];                           // Message buffer

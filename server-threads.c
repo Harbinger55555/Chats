@@ -22,7 +22,7 @@ void *send_msg(void *args) {
             // Only send msg if client didn't disconnect.
             if (strlen(msg_buffer) > 0) {
 
-                void* buffer = (void*) a->msg_buffer;
+                void* buffer = (void*) msg_buffer;
                 for (int i = 0; i < 3; i++) {
                     send(a->sockfd, buffer, sizeof(uint32_t), 0);
                     buffer += sizeof(uint32_t);
@@ -57,9 +57,8 @@ void *recv_msg(void *args) {
             acquire_exclusive();
 
             if (bytes_recv > 0) {
-                printf("%s: %s\n", a->msg.msg, a->msg.sender);
-                msgcpy(a->msg_buffer, &a->msg);
-//                printf("Wrote received msg to shared buffer.\n");
+                printf("%s: %s\n", a->msg.sender, a->msg.msg);
+                msgcpy(msg_buffer, &a->msg);
             } else {
                 pthread_mutex_lock(&(a->alive_mutex));    // LOCK
                 a->alive = 0;                             // Client no longer alive (i.e disconnected)
@@ -107,8 +106,6 @@ int add_client_conn(int sockfd) {
         client_conns[next].alive = 1;
         client_conns[next].cleanedup = 0;
         pthread_mutex_init(&(client_conns[next].alive_mutex), NULL);    // Initialize alive mutex
-        client_conns[next].msg_buffer = msg_buffer;
-        client_conns[next].size = MAX_LINE_SIZE;
         pthread_create(&(client_conns[next].send_thread), NULL, send_msg, (void *) &client_conns[next]);
         pthread_create(&(client_conns[next].recv_thread), NULL, recv_msg, (void *) &client_conns[next]);
         printf("Added new client with FD %d\n", sockfd);

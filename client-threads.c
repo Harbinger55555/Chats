@@ -35,9 +35,18 @@ void *send_msg(void *args) {
             pthread_mutex_unlock(&input_mutex);
         }
         *ch = '\0';
+
+        // TODO: Check if input is a command
+        // printf("\033[2J"); // Clear screen
+
         memcpy((void*) &(send_message.msg), (const void*) input_buffer, strlen((char*) input_buffer) + 1);
         int buf_len = msgcpy(msg_buffer, &send_message);
-        send(sockfd, (void *) msg_buffer, buf_len, 0);
+        if (strlen(send_message.msg) > 0) {
+            send(sockfd, (void *) msg_buffer, buf_len, 0);
+        } else {
+            //Move cursor up one line
+            printf("\033[1A\r"); // Move up X lines;
+        }
         *(input_buffer) = '\0';
         pthread_mutex_unlock(&input_mutex);
     }

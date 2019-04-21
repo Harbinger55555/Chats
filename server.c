@@ -24,6 +24,10 @@ int main(int argc, char* argv[]) {
     // Create listening socket
     list_sock = Socket(AF_INET, SOCK_STREAM, 0);
 
+    // Set socket options to allow port an address reuse.
+    int option;
+    setsockopt(list_sock,SOL_SOCKET,(SO_REUSEPORT | SO_REUSEADDR),(char*)&option,sizeof(option));
+
     // Initialize the socket address struct
     init_server_sockaddr(&serv_addr, ip_addr, port);
 

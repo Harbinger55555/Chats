@@ -53,7 +53,7 @@ void release_exclusive() {
 /*
  * Acquire the reader lock
  */
-void acquire_shared() {
+void acquire_shared(int already_sent) {
     pthread_mutex_lock(&mutex);
     r_wait_count++;             // Increment the readers waiting
     while(r_count == -1 || msg_avail == 0) {      // Wait whilst there is a writer or no msg_avail

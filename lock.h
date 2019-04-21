@@ -32,7 +32,7 @@ void release_exclusive();
 /*
  * Acquire the reader lock
  */
-void acquire_shared();
+void acquire_shared(int already_sent);
 
 /*
  * Release the reader lock

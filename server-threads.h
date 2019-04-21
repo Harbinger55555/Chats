@@ -18,10 +18,12 @@
 struct client_conn {
     int sockfd;
     volatile int alive;
+    volatile  int already_sent;
     int cleanedup;
     pthread_t send_thread;
     pthread_t recv_thread;
     pthread_mutex_t alive_mutex;    // Mutex to enforce atomicity for alive check
+    pthread_mutex_t a_sent_mutex;
     char* msg_buffer;
     size_t size;
 };

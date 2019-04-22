@@ -5,7 +5,6 @@
 #ifndef CHATS_SERVER_THREADS_H
 #define CHATS_SERVER_THREADS_H
 
-#include "lock.h"
 #include "message.h"
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -18,10 +17,8 @@
 struct client_conn {
     int sockfd;
     volatile int alive;
-    int cleanedup;
-    pthread_t send_thread;
+    pthread_t send_thread;      // These are created when needed and then joined
     pthread_t recv_thread;
-    pthread_mutex_t alive_mutex;    // Mutex to enforce atomicity for alive check
     struct message msg;
 };
 

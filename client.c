@@ -12,6 +12,7 @@
 #include "message.h"
 #include "connect.h"
 #include "client-threads.h"
+#include "interface.h"
 
 // Global constants
 #define DEFAULT_PORT    (2002)
@@ -40,16 +41,7 @@ int main(int argc, char *argv[]) {
 
     // TODO: Get username;
     char username[MAX_USERNAME_SIZE];
-
-    printf("Please enter your user name: ");
-    fflush(stdout);
-    fgets(username, MAX_USERNAME_SIZE, stdin);
-
-    // Strip the trailing newline
-    char *pos;
-    if ((pos = strchr(username, '\n')) != NULL) {
-        *pos = '\0';
-    }
+    get_username(username, MAX_USERNAME_SIZE);
 
     start_client_threads(conn_s, username);
 }

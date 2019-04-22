@@ -3,6 +3,7 @@
 //
 
 #include "lock.h"
+#include <pthread.h>
 
 int r_count;                     // Readers count
 int r_wait_count;                // Readers waiting count

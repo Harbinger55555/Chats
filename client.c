@@ -6,23 +6,23 @@
 #include <sys/types.h>              // socket types
 #include <arpa/inet.h>              // inet (3) function
 #include <unistd.h>                 // misc. UNIX functions
+#include <stdio.h>
+#include <string.h>
 
 #include "message.h"
 #include "connect.h"
 #include "client-threads.h"
 
 // Global constants
-#define MAX_LINE        (1000)
 #define DEFAULT_PORT    (2002)
 #define DEFAULT_IP_ADDR ("127.0.0.1")
 
 int main(int argc, char *argv[]) {
 
-    int         conn_s;                     // connection socket
-    short       port;                       // port number
-    struct      sockaddr_in servaddr;       // socket address structure
-//    char        buffer[MAX_LINE];           // character buffer
-    char*       ip_addr;                    // server IP address
+    int conn_s;                     // connection socket
+    short port;                       // port number
+    struct sockaddr_in servaddr;       // socket address structure
+    char *ip_addr;                    // server IP address
 
     // Set the remote port and remote ip address
     port = DEFAULT_PORT;
@@ -39,21 +39,18 @@ int main(int argc, char *argv[]) {
     Connect(conn_s, (struct sockaddr *) &servaddr, sizeof(servaddr));
 
     // TODO: Get username;
+    char username[MAX_USERNAME_SIZE];
 
-    start_client_threads(conn_s);
-    /*
-    while(1) {
-        // Get string to echo from user
-        printf("Enter message to echo: ");
-        fgets(buffer, MAX_LINE, stdin);
+    printf("Please enter your user name: ");
+    fflush(stdout);
+    fgets(username, MAX_USERNAME_SIZE, stdin);
 
-        // Send string to echo server, and retrieve response
-        write_message(conn_s, buffer, strlen(buffer));
-        read_message(conn_s, buffer, MAX_LINE - 1);
-
-        // Output echoed string
-        printf("Echo response: %s\n", buffer);
+    // Strip the trailing newline
+    char *pos;
+    if ((pos = strchr(username, '\n')) != NULL) {
+        *pos = '\0';
     }
-     */
+
+    start_client_threads(conn_s, username);
 }
 

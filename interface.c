@@ -17,9 +17,9 @@ void get_username(char *namebuffer, int max_size) {
     fgets(namebuffer, max_size, stdin);
     
     int len = name_len(namebuffer, max_size);
-    // 16 to account for the '\0' at the end.
+    // 16 to account for the '\n' at the end.
     if (len > 16) {
-        printf("Warning! Username truncated to 15 characters.");
+        printf("Warning! Username truncated to %d characters.", max_size - 1);
     }
     
     // Strip the trailing newline
@@ -28,3 +28,39 @@ void get_username(char *namebuffer, int max_size) {
         *pos = '\0';
     }
 }
+
+void clear_screen() {
+    // Clears the screen.
+    printf("\033[2J");
+    printf("%c[H\r", 27);
+    fflush(stdout);
+}
+
+void join() {
+    
+}
+
+void quit() {
+    
+}
+
+int is_command(char *input_buffer) {
+    return input_buffer[0] == '/';
+}
+
+void parse_command(char *input_buffer) {
+    if (strcmp(input_buffer + 1, "clear") == 0) {
+        clear_screen();
+    }
+    else if (strcmp(input_buffer + 1, "join") == 0) {
+        join();
+    }
+    else if (strcmp(input_buffer + 1, "quit") == 0) {
+        quit();
+    }
+    else {
+        printf("Invalid command!\n");
+    }
+}
+
+

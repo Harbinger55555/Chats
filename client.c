@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
     // Connect to the remote echo server
     Connect(conn_s, (struct sockaddr *) &servaddr, sizeof(servaddr));
 
-    // TODO: Get username;
+    // Get username.
     char username[MAX_USERNAME_SIZE];
     get_username(username, MAX_USERNAME_SIZE);
 

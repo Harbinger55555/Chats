@@ -26,9 +26,10 @@ void enableRawMode() {
     // client termination
     atexit(disableRawMode);
     struct termios raw = orig_termios;
+    raw.c_oflag &= ~(OPOST);
     raw.c_lflag &= ~(ICANON | ECHO);
 
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) {
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &raw) == -1) {
         perror("tcsetattr: ");
         exit(EXIT_FAILURE);
     }

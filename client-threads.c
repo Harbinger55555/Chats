@@ -19,41 +19,40 @@ struct message send_message;
 void *send_msg(void *args) {
     char msg_buffer[MAX_LINE_SIZE];
     int sockfd = *((int *) args);
+    int i;
+    char tmp;
     while (1) {
         printf(">%s: ", send_message.sender);
-        int i = 0;
-
-        enableRawMode();
+        
+        i = 0;
         while (1) {
-            char tmp = getchar();
+            enableRawMode();
+            tmp = getchar();
+            disableRawMode();
             pthread_mutex_lock(&input_mutex);
-            if (tmp == '\n') {
-                //Move cursor down one line
-                printf("\033[1b\r"); // Move DOWN 1 line;
+            if (tmp == '\n' || tmp == '\r') {              // Enter key pressed
+                // Remove the trailing newline
                 input_buffer[i] = '\0';
+                // Move cursor down one line
+                printf("%c", tmp);
+                fflush(stdout);
                 break;
             }
             if ((int) tmp == 127 && i > 0) {     // Backspace
-                // Move cursor one col to the left
-//                printf("\033[1D"); // Move left X column
-                // Clear every thing to the right of the cursor
-//                printf("\033[K");
-//                printf("\b \b");
-                printf("\10\33[K");
-                fflush(stdin);
-                i--;
+                // Replace the last char with the end of line
+                input_buffer[--i] = '\0';
+                // Remove the last printed character on the terminal
+                printf("\b \b");
+                fflush(stdout);
             } else {
                 printf("%c", tmp);
                 input_buffer[i] = tmp;
                 i++;
                 input_buffer[i] = '\0';
-                pthread_mutex_unlock(&input_mutex);
             }
-
             fflush(stdout);
+            pthread_mutex_unlock(&input_mutex);
         }
-
-        disableRawMode();
 
         // TODO: Check if input is a command
         // printf("\033[2J"); // Clear screen
@@ -63,8 +62,9 @@ void *send_msg(void *args) {
         if (strlen(send_message.msg) > 0) {
             send(sockfd, (void *) msg_buffer, buf_len, 0);
         } else {
-            //Move cursor up one line
-            printf("\033[1A\r"); // Move up X lines;
+            // Don't allow the user to move off of the 
+            // screen by entering empty lines
+            printf("\033[1A\r"); // Move up 1 lines;
         }
         input_buffer[0] = '\0';
 
@@ -84,15 +84,16 @@ void *recv_msg(void *args) {
             fprintf(stderr, "Server disconnected\n");
             exit(EXIT_FAILURE);
         }
-        // Delete the current line
+   
         pthread_mutex_lock(&input_mutex);
+        // Delete the current line
         printf("\033[2K\r");
-        // TODO: Implement this check on the server if time permits
+        // Only display the message if it's from someone else
         if (strcmp(recv_message.sender, send_message.sender) != 0) {
-            printf("<%s: %s\n", recv_message.sender, recv_message.msg);
+            printf("<%s: %s\r\n", recv_message.sender, recv_message.msg);
         }
-        printf(">%s: ", send_message.sender);
-        printf("%s", input_buffer);         // TODO: Troubleshoot
+        // Reprint the prompt and the input buffer
+        printf(">%s: %s", send_message.sender, input_buffer);
         fflush(stdout);
         pthread_mutex_unlock(&input_mutex);
     }

@@ -10,10 +10,9 @@
 #include <sys/socket.h>
 #include <string.h>
 #include <stdlib.h>
+#include "terminal.h"
 
-#define PROMPT "Enter message to echo: "
-
-volatile char input_buffer[MAX_MSG_SIZE];
+char input_buffer[MAX_MSG_SIZE] = {0};
 pthread_mutex_t input_mutex;
 struct message send_message;
 
@@ -22,24 +21,44 @@ void *send_msg(void *args) {
     int sockfd = *((int *) args);
     while (1) {
         printf(">%s: ", send_message.sender);
-        volatile char *ch = input_buffer;
+        int i = 0;
+
+        enableRawMode();
         while (1) {
             char tmp = getchar();
             pthread_mutex_lock(&input_mutex);
-            *ch = tmp;
-            if (*ch == '\n') {
+            if (tmp == '\n') {
+                //Move cursor down one line
+                printf("\033[1b\r"); // Move DOWN 1 line;
+                input_buffer[i] = '\0';
                 break;
             }
-            ch++;
-            *ch = '\0';
-            pthread_mutex_unlock(&input_mutex);
+            if ((int) tmp == 127 && i > 0) {     // Backspace
+                // Move cursor one col to the left
+//                printf("\033[1D"); // Move left X column
+                // Clear every thing to the right of the cursor
+//                printf("\033[K");
+//                printf("\b \b");
+                printf("\10\33[K");
+                fflush(stdin);
+                i--;
+            } else {
+                printf("%c", tmp);
+                input_buffer[i] = tmp;
+                i++;
+                input_buffer[i] = '\0';
+                pthread_mutex_unlock(&input_mutex);
+            }
+
+            fflush(stdout);
         }
-        *ch = '\0';
+
+        disableRawMode();
 
         // TODO: Check if input is a command
         // printf("\033[2J"); // Clear screen
 
-        memcpy((void*) &(send_message.msg), (const void*) input_buffer, strlen((char*) input_buffer) + 1);
+        memcpy((void *) &(send_message.msg), (const void *) input_buffer, strlen((char *) input_buffer) + 1);
         int buf_len = msgcpy(msg_buffer, &send_message);
         if (strlen(send_message.msg) > 0) {
             send(sockfd, (void *) msg_buffer, buf_len, 0);
@@ -47,7 +66,10 @@ void *send_msg(void *args) {
             //Move cursor up one line
             printf("\033[1A\r"); // Move up X lines;
         }
-        *(input_buffer) = '\0';
+        input_buffer[0] = '\0';
+
+        // We broke out of the while loop
+        // without unlocking
         pthread_mutex_unlock(&input_mutex);
     }
 }
@@ -64,7 +86,7 @@ void *recv_msg(void *args) {
         }
         // Delete the current line
         pthread_mutex_lock(&input_mutex);
-        printf("%c[2K\r", 27);
+        printf("\033[2K\r");
         // TODO: Implement this check on the server if time permits
         if (strcmp(recv_message.sender, send_message.sender) != 0) {
             printf("<%s: %s\n", recv_message.sender, recv_message.msg);
@@ -77,10 +99,10 @@ void *recv_msg(void *args) {
 }
 
 
-void start_client_threads(int sockfd, char* username) {
+void start_client_threads(int sockfd, char *username) {
     pthread_mutex_init(&input_mutex, NULL);
-    memcpy((void*) &(send_message.sender), (const void*) username, strlen(username) + 1);
-    memcpy((void*) &(send_message.receiver), (const void*) DEFAULT_RECEIVER, strlen(DEFAULT_RECEIVER) + 1);
+    memcpy((void *) &(send_message.sender), (const void *) username, strlen(username) + 1);
+    memcpy((void *) &(send_message.receiver), (const void *) DEFAULT_RECEIVER, strlen(DEFAULT_RECEIVER) + 1);
     pthread_t send_thread;
     pthread_t recv_thread;
     pthread_create(&send_thread, NULL, send_msg, (void *) &sockfd);

@@ -55,9 +55,11 @@ void *send_msg(void *args) {
             pthread_mutex_unlock(&input_mutex);
         }
 
-        if (1 == 0 /*TODO: Check if input is a command */) {
+        if (1 == 0 /* TODO: Check if input is a command */) {
             printf("This is a command\n");
         } else { // Input is a message
+            // Set message type
+            send_message.type = MSG;
             memcpy((void *) &(send_message.msg), (const void *) input_buffer, strlen((char *) input_buffer) + 1);
             int buf_len = msgcpy(msg_buffer, &send_message);
             if (strlen(send_message.msg) > 0) {
@@ -83,7 +85,7 @@ void *recv_msg(void *args) {
 
         int bytes_recv = unpack_msg(sockfd, (&recv_message));
         if (bytes_recv <= 0) {
-            fprintf(stderr, "Server disconnected\n");
+            fprintf(stderr, "Server disconnected\r\n");
             exit(EXIT_FAILURE);
         }
    

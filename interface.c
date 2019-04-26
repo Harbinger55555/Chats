@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "interface.h"
 
@@ -41,7 +42,7 @@ void join() {
 }
 
 void quit() {
-    
+    exit(0);
 }
 
 int is_command(char *input_buffer) {

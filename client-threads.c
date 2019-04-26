@@ -22,7 +22,8 @@ void *send_msg(void *args) {
     int i;
     char tmp;
     while (1) {
-        printf(">%s: ", send_message.sender);
+        printf("%s%s: ", OUT_PROMPT, send_message.sender);
+        fflush(stdout);
         
         i = 0;
         while (1) {
@@ -54,17 +55,18 @@ void *send_msg(void *args) {
             pthread_mutex_unlock(&input_mutex);
         }
 
-        // TODO: Check if input is a command
-        // printf("\033[2J"); // Clear screen
-
-        memcpy((void *) &(send_message.msg), (const void *) input_buffer, strlen((char *) input_buffer) + 1);
-        int buf_len = msgcpy(msg_buffer, &send_message);
-        if (strlen(send_message.msg) > 0) {
-            send(sockfd, (void *) msg_buffer, buf_len, 0);
-        } else {
-            // Don't allow the user to move off of the 
-            // screen by entering empty lines
-            printf("\033[1A\r"); // Move up 1 lines;
+        if (1 == 0 /*TODO: Check if input is a command */) {
+            printf("This is a command\n");
+        } else { // Input is a message
+            memcpy((void *) &(send_message.msg), (const void *) input_buffer, strlen((char *) input_buffer) + 1);
+            int buf_len = msgcpy(msg_buffer, &send_message);
+            if (strlen(send_message.msg) > 0) {
+                send(sockfd, (void *) msg_buffer, buf_len, 0);
+            } else {
+                // Don't allow the user to move off of the
+                // screen by entering empty lines
+                printf("\033[1A\r"); // Move up 1 lines;
+            }
         }
         input_buffer[0] = '\0';
 
@@ -90,10 +92,10 @@ void *recv_msg(void *args) {
         printf("\033[2K\r");
         // Only display the message if it's from someone else
         if (strcmp(recv_message.sender, send_message.sender) != 0) {
-            printf("<%s: %s\r\n", recv_message.sender, recv_message.msg);
+            printf("%s%s: %s\r\n", IN_PROMPT, recv_message.sender, recv_message.msg);
         }
-        // Reprint the prompt and the input buffer
-        printf(">%s: %s", send_message.sender, input_buffer);
+        // Reprint the out prompt and the input buffer
+        printf("%s%s: %s", OUT_PROMPT, send_message.sender, input_buffer);
         fflush(stdout);
         pthread_mutex_unlock(&input_mutex);
     }

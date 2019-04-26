@@ -34,7 +34,7 @@ void *send_msg(void *args) {
                 // Remove the trailing newline
                 input_buffer[i] = '\0';
                 // Move cursor down one line
-                printf("%c", tmp);
+                printf("\r\n");
                 fflush(stdout);
                 break;
             }

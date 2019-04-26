@@ -38,8 +38,7 @@ void *send_msg(void *args) {
                 printf("\r\n");
                 fflush(stdout);
                 break;
-            }
-            if ((int) tmp == 127 && i > 0) {     // Backspace
+            } else if ((int) tmp == 127 && i > 0) {         // Backspace key pressed
                 // Replace the last char with the end of line
                 input_buffer[--i] = '\0';
                 // Remove the last printed character on the terminal

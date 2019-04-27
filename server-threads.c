@@ -9,14 +9,13 @@ char msg_buffer[MAX_LINE_SIZE];                                  // Message buff
 struct client_conn client_conns[MAX_CLIENT_CONNS];          // Client connections
 pthread_mutex_t mutex;      // Mutex for message buffer
 
-pthread_mutex_t next_mutex;
-pthread_cond_t next_cond;       // Condition variable to signal next msg available.
-
 void *send_msg(void *args) {
     struct client_conn *a = (struct client_conn *) args;
     // Don't send empty messages
-    if (strlen(msg_buffer) > 0) {
+    if (strlen(msg_buffer + sizeof(uint32_t)) > 0) {
         void *buffer = (void *) msg_buffer;
+        send(a->sockfd, buffer, sizeof(uint32_t), 0);
+        buffer += sizeof(uint32_t);
         for (int i = 0; i < 3; i++) {
             send(a->sockfd, buffer, sizeof(uint32_t), 0);
             buffer += sizeof(uint32_t);
@@ -40,20 +39,25 @@ void *recv_msg(void *args) {
             printf("%s: %s\n", a->msg.sender, a->msg.msg);
             msgcpy(msg_buffer, &a->msg);
 
-            // Spawn off send threads if a new message is received.
-            for (int i = 0; i < MAX_CLIENT_CONNS; i++) {
-                if (client_conns[i].alive == 1) {
-                    pthread_create(&(client_conns[i].send_thread), NULL, send_msg, (void *) &client_conns[i]);
+            if (a->msg.type == MSG) {
+                // Send message to everyone in the chat room
+                for (int i = 0; i < MAX_CLIENT_CONNS; i++) {
+                    if (client_conns[i].alive == 1) {
+                        pthread_create(&(client_conns[i].send_thread), NULL, send_msg, (void *) &client_conns[i]);
+                    }
+                }
+
+                // Wait for the message to be sent to everyone before
+                // allowing another receiver thread to overwrite the msg_buffer.
+                for (int i = 0; i < MAX_CLIENT_CONNS; i++) {
+                    if (client_conns[i].alive == 1) {
+                        pthread_join(client_conns[i].send_thread, NULL);
+                    }
                 }
             }
 
-            // Wait for the message to be sent to everyone before
-            // allowing another receiver thread to overwrite the msg_buffer.
-            for (int i = 0; i < MAX_CLIENT_CONNS; i++) {
-                if (client_conns[i].alive == 1) {
-                    pthread_join(client_conns[i].send_thread, NULL);
-                }
-            }
+            // TODO: Handle different message types here
+
         } else {
             a->alive = 0;       // Set alive to 0
             printf("Client with FD %d disconnected\n", a->sockfd);
@@ -68,7 +72,7 @@ void *recv_msg(void *args) {
 
 void init_client_conns() {
     pthread_mutex_init(&mutex, NULL);   // Initialize the mutex
-    for (int i = 0; i < MAX_CLIENT_CONNS; i++) {    // All connections are initially not live
+    for (int i = 0; i < MAX_CLIENT_CONNS; i++) {    // All connections are initially not alive
         client_conns[i].alive = 0;
     }
 }

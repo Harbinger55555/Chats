@@ -11,8 +11,29 @@
 #define MAX_MSG_SIZE 1001       // Including '\0' (Only 1000 useful)
 #define MAX_LINE_SIZE MAX_MSG_SIZE + (2 * MAX_USERNAME_SIZE)
 #define DEFAULT_RECEIVER "all"
+#define IN_PROMPT ">"
+#define OUT_PROMPT "<"
+
+enum msg_type {
+    MSG,        // Normal message (Not a command)
+
+    // Server Side Commands:
+    JOIN,       /*  /join [chat room]           */
+    LEAVE,      /*  /leave                      */
+    DM,         /*  /dm [@username] [message]   */
+    ROOMS,      /*  /rooms                      */
+    USERS       /*  /users                      */
+
+    /*
+     * Client Side Commands:
+     * CLEAR        /clear
+     * QUIT         /quit
+     * HELP         /help
+     * */
+};
 
 struct message {
+    enum msg_type  type;
     char msg[MAX_LINE_SIZE];
     char sender[MAX_USERNAME_SIZE];
     char receiver[MAX_USERNAME_SIZE];
@@ -26,7 +47,7 @@ struct message {
 int msgcpy(char *msg_buffer, struct message *msg);
 
 /* Unpacks incoming message on sockfd into message struct.
- * If return value if not positive then client disconnected.*/
+ * If return value is not positive then client disconnected.*/
 int unpack_msg(int sockfd, struct message *msg);
 
 #endif //CHATS_MESSAGE_H

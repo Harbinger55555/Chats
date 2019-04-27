@@ -22,7 +22,10 @@ enum msg_type {
     LEAVE,      /*  /leave                      */
     DM,         /*  /dm [@username] [message]   */
     ROOMS,      /*  /rooms                      */
-    USERS       /*  /users                      */
+    USERS,      /*  /users                      */
+
+    // Special Command
+    USERNAME    // Sends user name to server
 
     /*
      * Client Side Commands:

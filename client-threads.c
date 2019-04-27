@@ -24,7 +24,7 @@ void *send_msg(void *args) {
     while (1) {
         printf("%s%s: ", OUT_PROMPT, send_message.sender);
         fflush(stdout);
-        
+
         i = 0;
         while (1) {
             enableRawMode();
@@ -87,7 +87,7 @@ void *recv_msg(void *args) {
             fprintf(stderr, "Server disconnected\r\n");
             exit(EXIT_FAILURE);
         }
-   
+
         pthread_mutex_lock(&input_mutex);
         // Delete the current line
         printf("\033[2K\r");
@@ -102,6 +102,22 @@ void *recv_msg(void *args) {
     }
 }
 
+void *send_username(void *args) {
+    char msg_buffer[MAX_LINE_SIZE];
+    int sockfd = *((int *) args);
+
+    pthread_mutex_lock(&input_mutex);
+    // Set message type
+    send_message.type = USERNAME;
+    char *username_msg = "username";
+    memcpy((void *) &(send_message.msg), (const void *) username_msg, strlen((char *) username_msg) + 1);
+    int buf_len = msgcpy(msg_buffer, &send_message);
+    send(sockfd, (void *) msg_buffer, buf_len, 0);
+    pthread_mutex_unlock(&input_mutex);
+
+    return NULL;
+}
+
 
 void start_client_threads(int sockfd, char *username) {
     pthread_mutex_init(&input_mutex, NULL);
@@ -109,6 +125,9 @@ void start_client_threads(int sockfd, char *username) {
     memcpy((void *) &(send_message.receiver), (const void *) DEFAULT_RECEIVER, strlen(DEFAULT_RECEIVER) + 1);
     pthread_t send_thread;
     pthread_t recv_thread;
+    pthread_t username_thread;
+
+    pthread_create(&username_thread, NULL, send_username, (void *) &sockfd);
     pthread_create(&send_thread, NULL, send_msg, (void *) &sockfd);
     pthread_create(&recv_thread, NULL, recv_msg, (void *) &sockfd);
     // Important to call join so that sockfd doesn't go out of scope

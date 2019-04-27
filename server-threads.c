@@ -54,6 +54,18 @@ void *recv_msg(void *args) {
                         pthread_join(client_conns[i].send_thread, NULL);
                     }
                 }
+            } else if (a->msg.type == DM) {
+                // Direct message
+                for (int i = 0; i < MAX_CLIENT_CONNS; i++) {
+                    if (client_conns[i].alive == 1 && strcmp(client_conns[i].name, a->msg.receiver) == 0) {
+                        pthread_create(&(client_conns[i].send_thread), NULL, send_msg, (void *) &client_conns[i]);
+                        pthread_join(client_conns[i].send_thread, NULL);
+                        break;
+                    }
+                }
+            } else if (a->msg.type == USERNAME) {
+                // Set the username of the client connection
+                memcpy(a->name, a->msg.sender, strlen(a->msg.sender) + 1);
             }
 
             // TODO: Handle different message types here

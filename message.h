@@ -11,6 +11,8 @@
 #define MAX_MSG_SIZE 1001       // Including '\0' (Only 30 useful)
 #define MAX_LINE_SIZE MAX_MSG_SIZE + (2 * MAX_USERNAME_SIZE)
 #define DEFAULT_RECEIVER "all"
+#define IN_PROMPT ">"
+#define OUT_PROMPT "<"
 
 struct message {
     char msg[MAX_LINE_SIZE];

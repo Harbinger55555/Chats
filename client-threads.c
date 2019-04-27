@@ -10,44 +10,67 @@
 #include <sys/socket.h>
 #include <string.h>
 #include <stdlib.h>
+#include "terminal.h"
 
-#define PROMPT "Enter message to echo: "
-
-volatile char input_buffer[MAX_MSG_SIZE];
+char input_buffer[MAX_MSG_SIZE] = {0};
 pthread_mutex_t input_mutex;
 struct message send_message;
 
 void *send_msg(void *args) {
     char msg_buffer[MAX_LINE_SIZE];
     int sockfd = *((int *) args);
+    int i;
+    char tmp;
     while (1) {
-        printf(">%s: ", send_message.sender);
-        volatile char *ch = input_buffer;
+        printf("%s%s: ", OUT_PROMPT, send_message.sender);
+        fflush(stdout);
+        
+        i = 0;
         while (1) {
-            char tmp = getchar();
+            enableRawMode();
+            tmp = getchar();
+            disableRawMode();
             pthread_mutex_lock(&input_mutex);
-            *ch = tmp;
-            if (*ch == '\n') {
+            if (tmp == '\n' || tmp == '\r') {              // Enter key pressed
+                // Remove the trailing newline
+                input_buffer[i] = '\0';
+                // Move cursor down one line
+                printf("\r\n");
+                fflush(stdout);
                 break;
+            } else if ((int) tmp == 127 && i > 0) {         // Backspace key pressed
+                // Replace the last char with the end of line
+                input_buffer[--i] = '\0';
+                // Remove the last printed character on the terminal
+                printf("\b \b");
+                fflush(stdout);
+            } else {
+                printf("%c", tmp);
+                input_buffer[i] = tmp;
+                i++;
+                input_buffer[i] = '\0';
             }
-            ch++;
-            *ch = '\0';
+            fflush(stdout);
             pthread_mutex_unlock(&input_mutex);
         }
-        *ch = '\0';
 
-        // TODO: Check if input is a command
-        // printf("\033[2J"); // Clear screen
-
-        memcpy((void*) &(send_message.msg), (const void*) input_buffer, strlen((char*) input_buffer) + 1);
-        int buf_len = msgcpy(msg_buffer, &send_message);
-        if (strlen(send_message.msg) > 0) {
-            send(sockfd, (void *) msg_buffer, buf_len, 0);
-        } else {
-            //Move cursor up one line
-            printf("\033[1A\r"); // Move up X lines;
+        if (1 == 0 /*TODO: Check if input is a command */) {
+            printf("This is a command\n");
+        } else { // Input is a message
+            memcpy((void *) &(send_message.msg), (const void *) input_buffer, strlen((char *) input_buffer) + 1);
+            int buf_len = msgcpy(msg_buffer, &send_message);
+            if (strlen(send_message.msg) > 0) {
+                send(sockfd, (void *) msg_buffer, buf_len, 0);
+            } else {
+                // Don't allow the user to move off of the
+                // screen by entering empty lines
+                printf("\033[1A\r"); // Move up 1 lines;
+            }
         }
-        *(input_buffer) = '\0';
+        input_buffer[0] = '\0';
+
+        // We broke out of the while loop
+        // without unlocking
         pthread_mutex_unlock(&input_mutex);
     }
 }
@@ -62,25 +85,26 @@ void *recv_msg(void *args) {
             fprintf(stderr, "Server disconnected\n");
             exit(EXIT_FAILURE);
         }
-        // Delete the current line
+   
         pthread_mutex_lock(&input_mutex);
-        printf("%c[2K\r", 27);
-        // TODO: Implement this check on the server if time permits
+        // Delete the current line
+        printf("\033[2K\r");
+        // Only display the message if it's from someone else
         if (strcmp(recv_message.sender, send_message.sender) != 0) {
-            printf("<%s: %s\n", recv_message.sender, recv_message.msg);
+            printf("%s%s: %s\r\n", IN_PROMPT, recv_message.sender, recv_message.msg);
         }
-        printf(">%s: ", send_message.sender);
-        printf("%s", input_buffer);         // TODO: Troubleshoot
+        // Reprint the out prompt and the input buffer
+        printf("%s%s: %s", OUT_PROMPT, send_message.sender, input_buffer);
         fflush(stdout);
         pthread_mutex_unlock(&input_mutex);
     }
 }
 
 
-void start_client_threads(int sockfd, char* username) {
+void start_client_threads(int sockfd, char *username) {
     pthread_mutex_init(&input_mutex, NULL);
-    memcpy((void*) &(send_message.sender), (const void*) username, strlen(username) + 1);
-    memcpy((void*) &(send_message.receiver), (const void*) DEFAULT_RECEIVER, strlen(DEFAULT_RECEIVER) + 1);
+    memcpy((void *) &(send_message.sender), (const void *) username, strlen(username) + 1);
+    memcpy((void *) &(send_message.receiver), (const void *) DEFAULT_RECEIVER, strlen(DEFAULT_RECEIVER) + 1);
     pthread_t send_thread;
     pthread_t recv_thread;
     pthread_create(&send_thread, NULL, send_msg, (void *) &sockfd);

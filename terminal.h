@@ -5,8 +5,16 @@
 #ifndef CHATS_TERMINAL_H
 #define CHATS_TERMINAL_H
 
-void disableRawMode();
+void disable_raw_mode();
 
-void enableRawMode();
+void enable_raw_mode();
+
+void color_bold_green();
+
+void color_blue();
+
+void color_bold_red();
+
+void color_reset();
 
 #endif //CHATS_TERMINAL_H

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "interface.h"
+#include "terminal.h"
 
 int is_command(char *input_buffer) {
     return input_buffer[0] == '/';
@@ -37,11 +38,8 @@ int parse_token(char *buffer, char *token) {
 	return idx;
 }
 
-// else if (strcmp(cmd, "dm") == 0) {
-//     dm(input_buffer, idx, send_message);
-// }
-
 void help() {
+    color_reset();
 	printf("For specifying arguments for commands like 'join', angled"
            " brackets should not be included.\n\n");
     printf("    /help                          prints this help display\n");
@@ -65,11 +63,13 @@ void clear_screen() {
 }
 
 void quit() {
+//     color_reset();
     exit(0);
 }
 
 void join(char *input_buffer, int args_idx, struct message *send_message) {
 	if (args_idx < 0) {
+        color_bold_red();
 		printf("Missing room name!\n");
 		return;
 	}
@@ -80,6 +80,7 @@ void join(char *input_buffer, int args_idx, struct message *send_message) {
 
 void leave(char *input_buffer, int args_idx, struct message *send_message) {
 	if (args_idx < 0) {
+        color_bold_red();
 		printf("Missing room name!\n");
 		return;
 	}
@@ -102,6 +103,7 @@ void users(struct message *send_message) {
 
 void dm(char *input_buffer, int args_idx, struct message *send_message) {
 	if (args_idx < 0) {
+        color_bold_red();
 		printf("Missing receiver!\n");
 		return;
 	}
@@ -112,6 +114,7 @@ void dm(char *input_buffer, int args_idx, struct message *send_message) {
 	char receiver[MAX_LINE_SIZE];
 	int msg_idx = parse_token(args, receiver);
 	if (msg_idx < 0) {
+        color_bold_red();
 		printf("Missing message!\n");
 		return;
 	} 
@@ -152,6 +155,7 @@ void command_action(char *input_buffer, struct message *send_message) {
         dm(input_buffer, idx, send_message);
     }
 	else {
+        color_bold_red();
 		printf("Invalid command!\n");
 	}
 }

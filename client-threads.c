@@ -23,18 +23,17 @@ void *send_msg(void *args) {
     int i;
     char tmp;
     while (1) {
-
-        printf("\033[1;32m");       // Set the color to bold green
+        color_bold_green();
         printf("%s%s: ", OUT_PROMPT, send_message.sender);
-        printf("\033[0;34m");       // Set the color to blue
+        color_blue();
 
         fflush(stdout);
 
         i = 0;
         while (1) {
-            enableRawMode();
+            enable_raw_mode();
             tmp = getchar();
-            disableRawMode();
+            disable_raw_mode();
             pthread_mutex_lock(&input_mutex);
             if (tmp == '\n' || tmp == '\r') {              // Enter key pressed
                 // Remove the trailing newline
@@ -94,7 +93,7 @@ void *recv_msg(void *args) {
         if (bytes_recv <= 0) {
 
             printf("\033[2K\r");
-            printf("\033[1;31m");       // Set the color to red
+            color_bold_red();
             printf("Server disconnected\r\n");
 
             exit(EXIT_FAILURE);
@@ -106,18 +105,18 @@ void *recv_msg(void *args) {
         // Only display the message if it's from someone else
         if (strcmp(recv_message.sender, send_message.sender) != 0) {
 
-            printf("\033[1;32m");       // Set the color to bold green
+            color_bold_green();
             printf("%s%s: ", IN_PROMPT, recv_message.sender);
 
-            printf("\033[0;31m");       // Set the color to red
+            color_bold_red();
             printf("%s\r\n", recv_message.msg);
         }
         // Reprint the out prompt and the input buffer
 
-        printf("\033[1;32m");       // Set the color to bold green
+        color_bold_green();
         printf("%s%s: ", OUT_PROMPT, send_message.sender);
 
-        printf("\033[0;34m");       // Set the color to blue
+        color_blue();
         printf("%s", input_buffer);
         fflush(stdout);
         pthread_mutex_unlock(&input_mutex);

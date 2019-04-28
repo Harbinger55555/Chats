@@ -55,21 +55,24 @@ void *send_msg(void *args) {
             pthread_mutex_unlock(&input_mutex);
         }
 
-        if (1 == 0 /* TODO: Check if input is a command */) {
-            printf("This is a command\n");
+        if (is_command(input_buffer)) {
+            command_action(input_buffer + 1, &send_message);
         } else { // Input is a message
             // Set message type
             send_message.type = MSG;
             memcpy((void *) &(send_message.msg), (const void *) input_buffer, strlen((char *) input_buffer) + 1);
-            int buf_len = msgcpy(msg_buffer, &send_message);
-            if (strlen(send_message.msg) > 0) {
-                send(sockfd, (void *) msg_buffer, buf_len, 0);
-            } else {
-                // Don't allow the user to move off of the
-                // screen by entering empty lines
-                printf("\033[1A\r"); // Move up 1 lines;
-            }
         }
+
+		int buf_len = msgcpy(msg_buffer, &send_message);
+		if (strlen(send_message.msg) > 0) {
+			printf("Sent message to server!\n");
+			send(sockfd, (void *) msg_buffer, buf_len, 0);
+		} else {
+			// Don't allow the user to move off of the
+			// screen by entering empty lines
+			printf("\033[1A\r"); // Move up 1 lines;
+		}
+		
         input_buffer[0] = '\0';
 
         // We broke out of the while loop

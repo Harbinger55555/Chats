@@ -48,7 +48,7 @@ void parse_cmdline(int argc, char **argv, short *port, char *ip_addr) {
             } else {
                 client_usage();
             }
-            exit(1);
+            exit(EXIT_FAILURE);
         } else if (strcmp(arg, "-p") == 0) {   // Port flag
             if (++i == argc) {
                 fprintf(stderr, "Expected port number following -p flag\n");

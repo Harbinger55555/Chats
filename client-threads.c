@@ -44,16 +44,20 @@ void *send_msg(void *args) {
                 fflush(stdout);
                 break;
             } else if ((int) tmp == 127 && i > 0) {         // Backspace key pressed
-                // Replace the last char with the end of line
-                input_buffer[--i] = '\0';
                 // Remove the last printed character on the terminal
                 printf("\b \b");
+
+                // Replace the last char with the end of line
+                input_buffer[--i] = '\0';
                 fflush(stdout);
-            } else {
-                printf("%c", tmp);
-                input_buffer[i] = tmp;
-                i++;
-                input_buffer[i] = '\0';
+            } else if (tmp == '\033') {                     // Escape sequence (ignore)
+                getchar();
+                getchar();
+            } else if (tmp != 127) {
+                    printf("%c", tmp);
+                    input_buffer[i] = tmp;
+                    i++;
+                    input_buffer[i] = '\0';
             }
             fflush(stdout);
             pthread_mutex_unlock(&input_mutex);
@@ -67,16 +71,16 @@ void *send_msg(void *args) {
             memcpy((void *) &(send_message.msg), (const void *) input_buffer, strlen((char *) input_buffer) + 1);
         }
 
-		int buf_len = msgcpy(msg_buffer, &send_message);
-		if (strlen(send_message.msg) > 0) {
-			send(sockfd, (void *) msg_buffer, buf_len, 0);
-		} else if (!is_command(input_buffer)) {
-			// Don't allow the user to move off of the
-			// screen by entering empty lines
-			printf("\033[1A\r"); // Move up 1 lines;
-			printf("\033[2K\r"); // Clear line and moves cursor back to start.
-		}
-		
+        int buf_len = msgcpy(msg_buffer, &send_message);
+        if (strlen(send_message.msg) > 0) {
+            send(sockfd, (void *) msg_buffer, buf_len, 0);
+        } else if (!is_command(input_buffer)) {
+            // Don't allow the user to move off of the
+            // screen by entering empty lines
+            printf("\033[1A\r"); // Move up 1 lines;
+            printf("\033[2K\r"); // Clear line and moves cursor back to start.
+        }
+
         input_buffer[0] = '\0';
 
         // We broke out of the while loop

@@ -6,6 +6,20 @@
 #include "connect.h"
 #include "server-threads.h"
 #include "cmdline.h"
+#include <ifaddrs.h>
+
+void server_info(short port) {
+    char str[INET_ADDRSTRLEN];
+
+    struct ifaddrs *id;
+    getifaddrs(&id);
+
+    // Convert IP Address to a string
+    inet_ntop(AF_INET, &(id->ifa_addr), str, INET_ADDRSTRLEN);
+
+    printf("Server Local IP Address: %s\n", str);
+    printf("Server Port Number: %d\n", port);
+}
 
 
 int main(int argc, char *argv[]) {
@@ -34,6 +48,9 @@ int main(int argc, char *argv[]) {
 
     // Start listening
     Listen(list_sock, LISTENQ);
+
+    // Print server info
+    server_info(port);
 
     // Initialize the client connections
     init_client_conns();

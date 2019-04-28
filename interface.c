@@ -74,10 +74,14 @@ void leave(char *input_buffer, int args_idx, struct message *send_message) {
 
 void rooms(struct message *send_message) {
 	send_message->type = ROOMS;
+    char *dummy = " \0"; // To send command to server.
+    memcpy((void *) &(send_message->msg), (const void *) (dummy), strlen((char *) dummy) + 1);
 }
 
 void users(struct message *send_message) {
 	send_message->type = USERS;
+    char *dummy = " \0"; // To send command to server.
+    memcpy((void *) &(send_message->msg), (const void *) (dummy), strlen((char *) dummy) + 1);
 }
 
 void dm(char *input_buffer, int args_idx, struct message *send_message) {
@@ -135,5 +139,3 @@ void command_action(char *input_buffer, struct message *send_message) {
 		printf("Invalid command!\n");
 	}
 }
-
-

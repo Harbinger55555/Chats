@@ -17,7 +17,8 @@ int parse_token(char *buffer, char *token) {
 		tmp = buffer[idx];
 	}
 	strncpy(token, buffer, idx);
-	++idx; // Index of next character after whitespace.
+	token[idx++] = '\0';
+	// Index of next character after whitespace.
 	if (tmp == '\0' || buffer[idx] == '\0') {
 		return -1;
 	}

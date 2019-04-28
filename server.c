@@ -9,15 +9,22 @@
 #include <ifaddrs.h>
 
 void server_info(short port) {
-    char str[INET_ADDRSTRLEN];
 
-    struct ifaddrs *id;
-    getifaddrs(&id);
+    struct ifaddrs *addrs;
+    struct ifaddrs *tmp;
 
-    // Convert IP Address to a string
-    inet_ntop(AF_INET, &(id->ifa_addr), str, INET_ADDRSTRLEN);
+    getifaddrs(&addrs);
+    tmp = addrs;
+    printf("Server Network Interfaces and IP Addresses:\n");
+    while (tmp) {
+        if (tmp->ifa_addr && tmp->ifa_addr->sa_family == AF_INET) {
+            struct sockaddr_in *pAddr = (struct sockaddr_in *)tmp->ifa_addr;
+            printf("\t-%s: %s\n", tmp->ifa_name, inet_ntoa(pAddr->sin_addr));
+        }
+        tmp = tmp->ifa_next;
+    }
 
-    printf("Server Local IP Address: %s\n", str);
+    freeifaddrs(addrs);
     printf("Server Port Number: %d\n", port);
 }
 

@@ -63,7 +63,6 @@ void clear_screen() {
 }
 
 void quit() {
-//     color_reset();
     exit(0);
 }
 

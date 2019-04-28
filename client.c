@@ -28,9 +28,13 @@ int name_len(char *a, int max_size) {
 }
 
 void get_username(char *namebuffer, int max_size) {
+    printf("\033[1;32m");       // Set the color to bold green
     printf("Please enter your user name: ");
     fflush(stdout);
+    printf("\033[0;34m");       // Set the color to blue
+    
     fgets(namebuffer, max_size, stdin);
+    printf("\033[0m");          //Resets the text to default color
     
     int len = name_len(namebuffer, max_size);
     // 16 to account for the '\n' at the end.

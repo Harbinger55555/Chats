@@ -10,9 +10,14 @@
 
 #define LISTENQ 1024        // Backlog for listen
 
+
+// Global constants
+#define DEFAULT_PORT 2002
+#define DEFAULT_IP_ADDR "127.0.0.1"
+
 int Socket(int domain, int type, int protocol);
 
-void init_server_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short port);
+void init_server_sockaddr(struct sockaddr_in* serv_addr, short port);
 
 void init_client_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short port);
 

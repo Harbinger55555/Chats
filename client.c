@@ -13,9 +13,6 @@
 #include "connect.h"
 #include "client-threads.h"
 
-// Global constants
-#define DEFAULT_PORT    (2002)
-#define DEFAULT_IP_ADDR ("127.0.0.1")
 
 int main(int argc, char *argv[]) {
 

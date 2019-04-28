@@ -19,6 +19,7 @@ struct client_conn {
     volatile int alive;
     pthread_t send_thread;      // These are created when needed and then joined
     pthread_t recv_thread;
+    char name[MAX_USERNAME_SIZE];
     struct message msg;
 };
 

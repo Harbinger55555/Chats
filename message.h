@@ -7,8 +7,8 @@
 
 # include <unistd.h>
 
-#define MAX_USERNAME_SIZE 31   // Including '\0'  (Only 30 useful)
-#define MAX_MSG_SIZE 1001       // Including '\0' (Only 30 useful)
+#define MAX_USERNAME_SIZE 16    // Including '\0'  (Only 15 useful)
+#define MAX_MSG_SIZE 1001       // Including '\0' (Only 1000 useful)
 #define MAX_LINE_SIZE MAX_MSG_SIZE + (2 * MAX_USERNAME_SIZE)
 #define DEFAULT_RECEIVER "all"
 #define IN_PROMPT ">"
@@ -22,7 +22,10 @@ enum msg_type {
     LEAVE,      /*  /leave                      */
     DM,         /*  /dm [@username] [message]   */
     ROOMS,      /*  /rooms                      */
-    USERS       /*  /users                      */
+    USERS,      /*  /users                      */
+
+    // Special Command
+    USERNAME    // Sends user name to server
 
     /*
      * Client Side Commands:

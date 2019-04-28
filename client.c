@@ -38,12 +38,16 @@ int main(int argc, char *argv[]) {
     // Connect to the remote echo server
     Connect(conn_s, (struct sockaddr *) &servaddr, sizeof(servaddr));
 
-    // TODO: Get username;
     char username[MAX_USERNAME_SIZE];
 
+    printf("\033[1;32m");       // Set the color to bold green
     printf("Please enter your user name: ");
+
     fflush(stdout);
+
+    printf("\033[0;34m");       // Set the color to blue
     fgets(username, MAX_USERNAME_SIZE, stdin);
+    printf("\033[0m");          //Resets the text to default color
 
     // Strip the trailing newline
     char *pos;

@@ -37,8 +37,24 @@ int parse_token(char *buffer, char *token) {
 	return idx;
 }
 
+// else if (strcmp(cmd, "dm") == 0) {
+//     dm(input_buffer, idx, send_message);
+// }
+
 void help() {
-	
+	printf("For specifying arguments for commands like 'join', angled"
+           " brackets should not be included.\n\n");
+    printf("    /help                          prints this help display\n");
+    printf("    /clear                         clears the screen\n");
+    printf("    /quit                          closes the application\n");
+    printf("    /rooms                         lists all available rooms\n");
+    printf("    /users                         lists all users in the current room\n");
+    printf("    /join <room name>              joins the chat room specified"
+           " by room name\n");
+    printf("    /leave <room name>             leaves the chat room specified"
+           " by room name\n");
+    printf("    /dm <user name> <message>      sends the message to the user"
+           " specified by user name\n");
 }
 
 void clear_screen() {

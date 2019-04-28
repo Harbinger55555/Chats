@@ -70,7 +70,7 @@ void *send_msg(void *args) {
 			// Don't allow the user to move off of the
 			// screen by entering empty lines
 			printf("\033[1A\r"); // Move up 1 lines;
-			printf("\033[2J");
+			printf("\033[2K\r"); // Clear line and moves cursor back to start.
 		}
 		
         input_buffer[0] = '\0';

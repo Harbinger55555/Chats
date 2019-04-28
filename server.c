@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "connect.h"
 #include "server-threads.h"
+#include "cmdline.h"
 
 
 int main(int argc, char *argv[]) {
@@ -12,9 +13,10 @@ int main(int argc, char *argv[]) {
     short port;                     // Port number (default 2002)
     struct sockaddr_in serv_addr;   // Socket address structure
 
-    // TODO: Parse the command line and set the default
-    // ports and IP address if no arguments were supplied.
     port = DEFAULT_PORT;
+
+    parse_cmdline(argc, argv, &port, NULL);
+
 
     // Create listening socket
     list_sock = Socket(AF_INET, SOCK_STREAM, 0);

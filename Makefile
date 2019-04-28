@@ -4,10 +4,10 @@ INCS = $(wildcard *.h)
 
 all: server client
 
-server: server.o connect.o message.o lock.o server-threads.o
+server: server.o connect.o message.o lock.o server-threads.o cmdline.o
 	$(CC) $(OPTS) $^ -o $@
 
-client: client.o connect.o message.o client-threads.o terminal.o interface.o
+client: client.o connect.o message.o client-threads.o terminal.o interface.o cmdline.o
 	$(CC) $(OPTS) $^ -o $@
 
 %.o: %.c ${INCS}

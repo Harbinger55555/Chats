@@ -12,6 +12,9 @@
  */
 void client_usage() {
     printf("\nUsage: client -a [server ip address] -p [server port number]\n"
+           "\n\nIf both server and client are on the same host, no need to specify a port or ip address\n"
+           "\t-Usage in this case: client\n"
+           "\t-The default port is 2002 and the loopback (127.0.0.1) ip address is used.\n"
            "\n"
            "Options:\n"
            "    -h          Prints this help message\n"
@@ -24,6 +27,9 @@ void client_usage() {
  */
 void server_usage() {
     printf("\nUsage: server -p [server port number]\n"
+           "\n\nIf both server and client are on the same host, no need to specify a port\n"
+           "\t-Usage in this case: server\n"
+           "\t-The default port is 2002\n"
            "\n"
            "Options:\n"
            "    -h          Prints this help message\n"

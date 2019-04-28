@@ -7,7 +7,7 @@ all: server client
 server: server.o connect.o message.o lock.o server-threads.o
 	$(CC) $(OPTS) $^ -o $@
 
-client: client.o connect.o message.o client-threads.o terminal.o
+client: client.o connect.o message.o client-threads.o terminal.o interface.o
 	$(CC) $(OPTS) $^ -o $@
 
 %.o: %.c ${INCS}

@@ -65,12 +65,12 @@ void *send_msg(void *args) {
 
 		int buf_len = msgcpy(msg_buffer, &send_message);
 		if (strlen(send_message.msg) > 0) {
-			printf("Sent message to server!\n");
 			send(sockfd, (void *) msg_buffer, buf_len, 0);
-		} else {
+		} else if (!is_command(input_buffer)) {
 			// Don't allow the user to move off of the
 			// screen by entering empty lines
 			printf("\033[1A\r"); // Move up 1 lines;
+			printf("\033[2J");
 		}
 		
         input_buffer[0] = '\0';

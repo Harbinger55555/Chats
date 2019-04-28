@@ -34,7 +34,7 @@ void get_username(char *namebuffer, int max_size) {
     
     int len = name_len(namebuffer, max_size);
     // 16 to account for the '\n' at the end.
-    if (len > 16) {
+    if (len > max_size) {
         printf("Warning! Username truncated to %d characters.", max_size - 1);
     }
     

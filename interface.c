@@ -105,6 +105,7 @@ void command_action(char *input_buffer, struct message *send_message) {
 	// User could enter a continous invalid command with MAX_LINE_SIZE.
 	char cmd[MAX_LINE_SIZE]; 
 	int idx = parse_token(input_buffer, cmd);
+	send_message->msg[0] = '\0'; // Clear send_message->msg first.
 	
 	if (strcmp(cmd, "help") == 0) {
         help();

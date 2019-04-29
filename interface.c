@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "interface.h"
+#include "terminal.h"
 
 int is_command(char *input_buffer) {
     return input_buffer[0] == '/';
@@ -38,7 +39,20 @@ int parse_token(char *buffer, char *token) {
 }
 
 void help() {
-	
+    color_reset();
+	printf("For specifying arguments for commands like 'join', angled"
+           " brackets should not be included.\n\n");
+    printf("    /help                          prints this help display\n");
+    printf("    /clear                         clears the screen\n");
+    printf("    /quit                          closes the application\n");
+    printf("    /rooms                         lists all available rooms\n");
+    printf("    /users                         lists all users in the current room\n");
+    printf("    /join <room name>              joins the chat room specified"
+           " by room name\n");
+    printf("    /leave <room name>             leaves the chat room specified"
+           " by room name\n");
+    printf("    /dm <user name> <message>      sends the message to the user"
+           " specified by user name\n");
 }
 
 void clear_screen() {
@@ -54,6 +68,7 @@ void quit() {
 
 void join(char *input_buffer, int args_idx, struct message *send_message) {
 	if (args_idx < 0) {
+        color_bold_red();
 		printf("Missing room name!\n");
 		return;
 	}
@@ -64,6 +79,7 @@ void join(char *input_buffer, int args_idx, struct message *send_message) {
 
 void leave(char *input_buffer, int args_idx, struct message *send_message) {
 	if (args_idx < 0) {
+        color_bold_red();
 		printf("Missing room name!\n");
 		return;
 	}
@@ -74,14 +90,19 @@ void leave(char *input_buffer, int args_idx, struct message *send_message) {
 
 void rooms(struct message *send_message) {
 	send_message->type = ROOMS;
+    char *dummy = " \0"; // To send command to server.
+    memcpy((void *) &(send_message->msg), (const void *) (dummy), strlen((char *) dummy) + 1);
 }
 
 void users(struct message *send_message) {
 	send_message->type = USERS;
+    char *dummy = " \0"; // To send command to server.
+    memcpy((void *) &(send_message->msg), (const void *) (dummy), strlen((char *) dummy) + 1);
 }
 
 void dm(char *input_buffer, int args_idx, struct message *send_message) {
 	if (args_idx < 0) {
+        color_bold_red();
 		printf("Missing receiver!\n");
 		return;
 	}
@@ -92,6 +113,7 @@ void dm(char *input_buffer, int args_idx, struct message *send_message) {
 	char receiver[MAX_LINE_SIZE];
 	int msg_idx = parse_token(args, receiver);
 	if (msg_idx < 0) {
+        color_bold_red();
 		printf("Missing message!\n");
 		return;
 	} 
@@ -132,8 +154,7 @@ void command_action(char *input_buffer, struct message *send_message) {
         dm(input_buffer, idx, send_message);
     }
 	else {
+        color_bold_red();
 		printf("Invalid command!\n");
 	}
 }
-
-

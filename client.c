@@ -8,12 +8,14 @@
 #include <unistd.h>                 // misc. UNIX functions
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
 #include "cmdline.h"
 #include "message.h"
 #include "connect.h"
 #include "client-threads.h"
 #include "interface.h"
+#include "terminal.h"
 
 
 int name_len(char *a, int max_size) {
@@ -26,13 +28,13 @@ int name_len(char *a, int max_size) {
 }
 
 void get_username(char *namebuffer, int max_size) {
-    printf("\033[1;32m");       // Set the color to bold green
+    color_bold_green();
     printf("Please enter your user name: ");
     fflush(stdout);
-    printf("\033[0;34m");       // Set the color to blue
+    color_blue();
     
     fgets(namebuffer, max_size, stdin);
-    printf("\033[0m");          //Resets the text to default color
+    color_reset();
     
     int len = name_len(namebuffer, max_size);
     // 16 to account for the '\n' at the end.
@@ -47,12 +49,22 @@ void get_username(char *namebuffer, int max_size) {
     }
 }
 
+void terminal_color_reset(int sig) {
+    color_reset();
+    fflush(stdout);
+    signal(SIGINT, SIG_DFL); // Call default SIGINT handler.
+    raise(SIGINT);
+}
+
 int main(int argc, char *argv[]) {
 
     int conn_s;                     // connection socket
     short port;                       // port number
     struct sockaddr_in servaddr;       // socket address structure
     char *ip_addr;                    // server IP address
+    
+    signal(SIGINT, terminal_color_reset);  // Resets terminal color if SIGINT received. 
+    signal(SIGTSTP, terminal_color_reset);  // Resets terminal color if SIGTSTP received.
 
     // Set the remote port and remote ip address
     port = DEFAULT_PORT;

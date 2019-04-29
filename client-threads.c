@@ -108,7 +108,7 @@ void *recv_msg(void *args) {
             color_bold_green();
             printf("%s%s: ", IN_PROMPT, recv_message.sender);
 
-            color_bold_red();
+            color_red();
             printf("%s\r\n", recv_message.msg);
         }
         // Reprint the out prompt and the input buffer

@@ -44,6 +44,10 @@ void color_blue() {
     printf("\033[0;34m");
 }
 
+void color_red() {
+    printf("\033[0;31m");
+}
+
 void color_bold_red() {
     printf("\033[1;31m");
 }

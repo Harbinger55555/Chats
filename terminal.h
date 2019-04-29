@@ -13,6 +13,8 @@ void color_bold_green();
 
 void color_blue();
 
+void color_red();
+
 void color_bold_red();
 
 void color_reset();

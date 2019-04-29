@@ -9,14 +9,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "cmdline.h"
 #include "message.h"
 #include "connect.h"
 #include "client-threads.h"
 #include "interface.h"
 
-// Global constants
-#define DEFAULT_PORT    (2002)
-#define DEFAULT_IP_ADDR ("127.0.0.1")
 
 int name_len(char *a, int max_size) {
     int len = 0;
@@ -59,6 +57,7 @@ int main(int argc, char *argv[]) {
     // Set the remote port and remote ip address
     port = DEFAULT_PORT;
     ip_addr = DEFAULT_IP_ADDR;
+    parse_cmdline(argc, argv, &port, ip_addr);
 
     // Create the listening socket
     conn_s = Socket(AF_INET, SOCK_STREAM, 0);

@@ -24,17 +24,11 @@ int Socket(int domain, int type, int protocol) {
     return sock_fd;
 }
 
-void init_server_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short port) {
+void init_server_sockaddr(struct sockaddr_in* serv_addr, short port) {
     memset(serv_addr, 0, sizeof(*serv_addr));
     serv_addr->sin_family = AF_INET;
     serv_addr->sin_port =htons((uint16_t) port);
-    struct in_addr in;
-    if (inet_aton(ip_addr, &in) == 0) {
-        fprintf(stderr, "Invalid IP address provided, binding socket to all available local interfaces.\n");
         serv_addr->sin_addr.s_addr = htonl(INADDR_ANY);
-    } else {
-        serv_addr->sin_addr.s_addr = in.s_addr;
-    }
 }
 
 void init_client_sockaddr(struct sockaddr_in* serv_addr, char* ip_addr, short port) {

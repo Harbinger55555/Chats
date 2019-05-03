@@ -110,7 +110,14 @@ void *recv_msg(void *args) {
         if (strcmp(recv_message.sender, send_message.sender) != 0) {
 
             color_bold_green();
-            printf("%s%s: ", IN_PROMPT, recv_message.sender);
+            
+            // For dm message
+            if (recv_message.type == DM) {
+                printf("%s%s(DM): ", IN_PROMPT, recv_message.sender);
+            }
+            else {
+                printf("%s%s: ", IN_PROMPT, recv_message.sender);
+            }
 
             color_red();
             printf("%s\r\n", recv_message.msg);

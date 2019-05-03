@@ -30,4 +30,16 @@ Data Structures used in CHATS:
 * A list of receive threads of server.
 * A list of send threads of server.
 
-
+## Commands
+### ./server                        
+Starts the server
+### ./client                        
+Starts the client
+### /dm <username> <message>        
+Send a private message to a user
+### /help
+Displays all the helpful commands available to the client
+### /clear
+Clears the screen
+### /quit
+Exits the application

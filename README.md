@@ -35,7 +35,7 @@ Data Structures used in CHATS:
 Starts the server
 ### ./client                        
 Starts the client
-### /dm <username> <message>        
+### /dm {username} {message}        
 Send a private message to a user
 ### /help
 Displays all the helpful commands available to the client

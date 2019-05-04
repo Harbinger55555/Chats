@@ -1,5 +1,10 @@
 # CHATS
 
+## Authors:
++ Kaleshwar Singh
++ Henchhing Limbu
++ Zaykha Kyaw San
+
 ## Overview
 CHATS is a multithreaded client server application. Once connected to the server, users by default join chat room and can instant message other users in the room.
 
@@ -59,7 +64,7 @@ More details of the `client` command can be viewed using the help flag
 ```
 
 ## In Chat Commands
-### /dm {username} {message}        
+### /dm <username> <message>        
 Send a private message to a user
 ### /help
 Displays all the commands available to the client

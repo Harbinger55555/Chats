@@ -30,16 +30,40 @@ Data Structures used in CHATS:
 * A list of receive threads of server.
 * A list of send threads of server.
 
-## Commands
-### ./server                        
-Starts the server
-### ./client                        
-Starts the client
+## Building the Client and Server ##
+Executing the `make` command will build both the `client` and `server` executables.
+
+## Starting the Server ##
+The server can be started by executing the following command
+```bash
+./server -p [port number]
+```
+The port number is optional, if none is specified port 2002 is used.
+
+More details of the `server` command can be viewed using the help flag
+```bash
+./server -h
+```
+## Starting the Client ##
+The client can be started by executing the following command
+```bash
+./server -a [server ip address] -p [server port number]
+```
+The port number and ip address are optional, if none is specified localhost and port 2002 is used.
+
+__NOTE__: A server must be running before attemptinng to connect from a client.
+
+More details of the `client` command can be viewed using the help flag
+```bash
+./client -h
+```
+
+## In Chat Commands
 ### /dm {username} {message}        
 Send a private message to a user
 ### /help
-Displays all the helpful commands available to the client
+Displays all the commands available to the client
 ### /clear
 Clears the screen
 ### /quit
-Exits the application
+Exits the client application

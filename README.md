@@ -64,7 +64,7 @@ More details of the `client` command can be viewed using the help flag
 ```
 
 ## In Chat Commands
-### /dm <username> <message> ###  
+### /dm {username} {message}  
 Send a private message to a user
 ### /help
 Displays all the commands available to the client
